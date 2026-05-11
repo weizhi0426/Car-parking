@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>停車場遠端控制</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 28px 32px;
+    }
+
+    .card h2 {
+      font-size: 1.2rem;
+      color: #444;
+      margin-bottom: 20px;
+      text-align: center;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 12px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 16px 0;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 1px;
+    }
+
+    .btn-open { background: #4CAF50; color: white; }
+    .btn-open:hover { background: #43a047; transform: scale(1.03); }
+    .btn-open:active { transform: scale(0.97); }
+
+    .btn-close { background: #f44336; color: white; }
+    .btn-close:hover { background: #e53935; transform: scale(1.03); }
+    .btn-close:active { transform: scale(0.97); }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .status {
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
+    }
+
+    .status.success { background: #e8f5e9; color: #2e7d32; display: block; }
+    .status.error   { background: #ffebee; color: #c62828; display: block; }
+    .status.loading { background: #e3f2fd; color: #1565c0; display: block; }
+  </style>
+</head>
+<body>
+
+  <h1>🅿️ 停車場遠端控制</h1>
+
+  <div class="cards">
+
+    <!-- 太平路站 -->
+    <div class="card">
+      <h2>📍 太平路站</h2>
+      <div class="btn-group">
+        <button class="btn btn-open"  onclick="controlGate('open',  54, 'TOKEN_132', this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="controlGate('close', 54, 'TOKEN_132', this)">🔴 關門</button>
+      </div>
+      <div class="status" id="status-54"></div>
+    </div>
+
+    <!-- 三厝街站 -->
+    <div class="card">
+      <h2>📍 三厝街站</h2>
+      <div class="btn-group">
+        <button class="btn btn-open"  onclick="controlGate('open',  71, 'TOKEN_132', this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="controlGate('close', 71, 'TOKEN_132', this)">🔴 關門</button>
+      </div>
+      <div class="status" id="status-71"></div>
+    </div>
+
+    <!-- 東英路站 -->
+    <div class="card">
+      <h2>📍 東英路站</h2>
+      <div class="btn-group">
+        <button class="btn btn-open"  onclick="controlGate('open',  157, 'TOKEN_238', this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="controlGate('close', 157, 'TOKEN_238', this)">🔴 關門</button>
+      </div>
+      <div class="status" id="status-157"></div>
+    </div>
+
+    <!-- 中華路站 -->
+    <div class="card">
+      <h2>📍 中華路站</h2>
+      <div class="btn-group">
+        <button class="btn btn-open"  onclick="controlGate('open',  168, 'TOKEN_260', this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="controlGate('close', 168, 'TOKEN_260', this)">🔴 關門</button>
+      </div>
+      <div class="status" id="status-168"></div>
+    </div>
+
+    <!-- 永春東七路站 -->
+    <div class="card">
+      <h2>📍 永春東七路站</h2>
+      <div class="btn-group">
+        <button class="btn btn-open"  onclick="controlGate('open',  228, 'TOKEN_260', this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="controlGate('close', 228, 'TOKEN_260', this)">🔴 關門</button>
+      </div>
+      <div class="status" id="status-228"></div>
+    </div>
+
+    <!-- 豐樂公園站 -->
+    <div class="card">
+      <h2>📍 豐樂公園站</h2>
+      <div class="btn-group">
+        <button class="btn btn-open"  onclick="controlGate('open',  269, 'TOKEN_260', this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="controlGate('close', 269, 'TOKEN_260', this)">🔴 關門</button>
+      </div>
+      <div class="status" id="status-269"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const TOKENS = {
+      TOKEN_132: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTMyLCJleHAiOjIyOTY5MDUxODl9.76P3wIKx5R0X-8Lq0YrR6w-5KYdgGGkCdrDE3dTTDCo",
+      TOKEN_238: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MjM4LCJleHAiOjIyOTY5MDY3ODF9.Z9D7orkZx7ms6ViFaq_bHpM9yKWSJxm8waTrHktv-DQ",
+      TOKEN_260: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MjYwLCJleHAiOjIyOTY5MDY5OTV9.r8oue0WjLjqOgcET2J9lOyVgMt6uJgZTeGzB84VPMsI",
+    };
+
+    const BASE_URL = "https://paku.acerits.com/api/v1/remote/pv3";
+
+    async function controlGate(action, devId, tokenKey, btnEl) {
+      const statusEl = document.getElementById(`status-${devId}`);
+      const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
+
+      allBtns.forEach(b => b.disabled = true);
+      statusEl.className = 'status loading';
+      statusEl.textContent = action === 'open' ? '⏳ 開門中...' : '⏳ 關門中...';
+
+      try {
+        const res = await fetch(`${BASE_URL}/${action}_gate`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json, text/plain, */*',
+            'Authorization': TOKENS[tokenKey],
+            'Content-Type': 'application/json; charset=UTF-8'
+          },
+          body: JSON.stringify({ dev_id: devId })
+        });
+
+        if (res.ok) {
+          statusEl.className = 'status success';
+          statusEl.textContent = action === 'open' ? '✅ 開門成功！' : '✅ 關門成功！';
+        } else {
+          throw new Error(`HTTP ${res.status}`);
+        }
+      } catch (err) {
+        statusEl.className = 'status error';
+        statusEl.textContent = `❌ 失敗：${err.message}`;
+      } finally {
+        setTimeout(() => {
+          allBtns.forEach(b => b.disabled = false);
+        }, 2000);
+      }
+    }
+  </script>
+
+</body>
+</html>
