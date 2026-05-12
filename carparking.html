@@ -5,11 +5,8 @@
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%230066cc'/><text y='.9em' font-size='85' font-family='Arial' font-weight='bold' fill='white' x='18'>P</text></svg>">
 
-  <!-- 🔽 手機加到主畫面圖示 (iOS) 動態產生，不需上傳圖片 -->
   <meta name="apple-mobile-web-app-title" content="停車場控制">
   <meta name="apple-mobile-web-app-capable" content="yes">
-
-  <!-- 🔽 手機加到主畫面圖示 (Android) -->
   <meta name="application-name" content="停車場控制">
   <meta name="theme-color" content="#0066cc">
 
@@ -33,6 +30,21 @@
       color: #333;
       margin-bottom: 24px;
       letter-spacing: 1px;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      color: #666;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding-left: 8px;
+    }
+
+    .section-title:first-child {
+      margin-top: 0;
     }
 
     .cards {
@@ -110,6 +122,11 @@
 
   <div class="cards">
 
+    <!-- ===== 舊系統 ===== -->
+    <div>
+      <div class="section-title">📍 宏碁系統</div>
+    </div>
+
     <!-- 太平路站 -->
     <div class="card">
       <h2>📍 太平路站</h2>
@@ -170,6 +187,41 @@
       <div class="status" id="status-269"></div>
     </div>
 
+    <!-- ===== woparker 新系統 ===== -->
+    <div>
+      <div class="section-title">woparker 系統</div>
+    </div>
+
+    <!-- 民生北路 A站 -->
+    <div class="card">
+      <h2>📍 民生北路 A站</h2>
+      <div class="btn-group">
+        <button class="btn btn-open"  onclick="woparkerControl('open', 1729, this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="woparkerControl('close', 1729, this)">🔴 關門</button>
+      </div>
+      <div class="status" id="status-woparker-1729"></div>
+    </div>
+
+    <!-- 民生北路 B站 -->
+    <div class="card">
+      <h2>📍 民生北路 B站</h2>
+      <div class="btn-group">
+        <button class="btn btn-open"  onclick="woparkerControl('open', 1731, this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="woparkerControl('close', 1731, this)">🔴 關門</button>
+      </div>
+      <div class="status" id="status-woparker-1731"></div>
+    </div>
+
+    <!-- 益文一街站 -->
+    <div class="card">
+      <h2>📍 益文一街站</h2>
+      <div class="btn-group">
+        <button class="btn btn-open"  onclick="woparkerControl('open', 1807, this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="woparkerControl('close', 1807, this)">🔴 關門</button>
+      </div>
+      <div class="status" id="status-woparker-1807"></div>
+    </div>
+
   </div>
 
   <script>
@@ -179,8 +231,9 @@
       TOKEN_260: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MjYwLCJleHAiOjIyOTY5MDY5OTV9.r8oue0WjLjqOgcET2J9lOyVgMt6uJgZTeGzB84VPMsI",
     };
 
-    const BASE_URL = "https://paku.acerits.com/api/v1/remote/pv3";
+    const WORKER_URL = "https://parking-opener.abc920426920426.workers.dev";
 
+    // ===== 舊系統控制 (透過 Worker 代理) =====
     async function controlGate(action, devId, tokenKey, btnEl) {
       const statusEl = document.getElementById(`status-${devId}`);
       const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
@@ -190,21 +243,17 @@
       statusEl.textContent = action === 'open' ? '⏳ 開門中...' : '⏳ 關門中...';
 
       try {
-        const res = await fetch(`${BASE_URL}/${action}_gate`, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json, text/plain, */*',
-            'Authorization': TOKENS[tokenKey],
-            'Content-Type': 'application/json; charset=UTF-8'
-          },
-          body: JSON.stringify({ dev_id: devId })
+        const res = await fetch(`${WORKER_URL}/api/paku/gate?action=${action}&dev_id=${devId}&token=${encodeURIComponent(TOKENS[tokenKey])}`, {
+          method: 'GET'
         });
+
+        const data = await res.json();
 
         if (res.ok) {
           statusEl.className = 'status success';
           statusEl.textContent = action === 'open' ? '✅ 開門成功！' : '✅ 關門成功！';
         } else {
-          throw new Error(`HTTP ${res.status}`);
+          throw new Error(data.error || `HTTP ${res.status}`);
         }
       } catch (err) {
         statusEl.className = 'status error';
@@ -216,31 +265,61 @@
       }
     }
 
-  // 動態產生 apple-touch-icon
-  const canvas = document.createElement('canvas');
-  canvas.width = 180;
-  canvas.height = 180;
-  const ctx = canvas.getContext('2d');
+    // ===== woparker 新系統控制 (透過 Worker 代理) =====
+    async function woparkerControl(action, id, btnEl) {
+      const statusEl = document.getElementById(`status-woparker-${id}`);
+      const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
 
-  // 藍色圓角背景
-  ctx.fillStyle = '#0066cc';
-  ctx.beginPath();
-  ctx.roundRect(0, 0, 180, 180, 30);
-  ctx.fill();
+      allBtns.forEach(b => b.disabled = true);
+      statusEl.className = 'status loading';
+      statusEl.textContent = action === 'open' ? '⏳ 開門中...' : '⏳ 關門中...';
 
-  // 白色 P 字
-  ctx.fillStyle = 'white';
-  ctx.font = 'bold 120px Arial';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('P', 90, 95);
+      try {
+        const res = await fetch(`${WORKER_URL}/api/woparker/${action}?id=${id}`, {
+          method: 'GET'
+        });
 
-  // 套用到 apple-touch-icon
-  const link = document.createElement('link');
-  link.rel = 'apple-touch-icon';
-  link.href = canvas.toDataURL('image/png');
-  document.head.appendChild(link);
+        const data = await res.json();
+        console.log(`[woparker id=${id}] 回應:`, data);
 
+        if (res.ok) {
+          statusEl.className = 'status success';
+          statusEl.textContent = action === 'open' ? '✅ 開門成功！' : '✅ 關門成功！';
+        } else {
+          throw new Error(JSON.stringify(data));
+        }
+      } catch (err) {
+        console.error(`[woparker id=${id}] 錯誤:`, err);
+        statusEl.className = 'status error';
+        statusEl.textContent = `❌ 失敗：${err.message.substring(0, 40)}`;
+      } finally {
+        setTimeout(() => {
+          allBtns.forEach(b => b.disabled = false);
+        }, 2000);
+      }
+    }
+
+    // ===== 動態產生 apple-touch-icon =====
+    const canvas = document.createElement('canvas');
+    canvas.width = 180;
+    canvas.height = 180;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#0066cc';
+    ctx.beginPath();
+    ctx.roundRect(0, 0, 180, 180, 30);
+    ctx.fill();
+
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 120px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('P', 90, 95);
+
+    const link = document.createElement('link');
+    link.rel = 'apple-touch-icon';
+    link.href = canvas.toDataURL('image/png');
+    document.head.appendChild(link);
 
   </script>
 
