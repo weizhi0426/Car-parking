@@ -192,20 +192,28 @@
       <div class="status" id="status-168"></div>
     </div>
 
-    <!-- 永春東七路站 -->
     <div class="card">
       <h2>📍 永春東七路站</h2>
-      <div class="btn-group">
-        <h4>入口</h4>
-        <button class="btn btn-open"  onclick="controlGate('open',  228, 'TOKEN_260', this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 228, 'TOKEN_260', this)">🔴 關門</button>
+      
+      <!-- 入口 -->
+      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
+        <div class="btn-group">
+          <button class="btn btn-open"  onclick="controlGate('open',  228, 'TOKEN_260', this)">🟢 開門</button>
+          <button class="btn btn-close" onclick="controlGate('close', 228, 'TOKEN_260', this)">🔴 關門</button>
+        </div>
+        <div class="status" id="status-228"></div>
       </div>
-      <div class="btn-group">
-        <h4>出口</h4>
-        <button class="btn btn-open"  onclick="controlGate('open',  229, 'TOKEN_260', this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 229, 'TOKEN_260', this)">🔴 關門</button>
+    
+      <!-- 出口 -->
+      <div>
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
+        <div class="btn-group">
+          <button class="btn btn-open"  onclick="controlGate('open',  229, 'TOKEN_260', this)">🟢 開門</button>
+          <button class="btn btn-close" onclick="controlGate('close', 229, 'TOKEN_260', this)">🔴 關門</button>
+        </div>
+        <div class="status" id="status-229"></div>
       </div>
-      <div class="status" id="status-228"></div>
     </div>
 
     <!-- 豐樂公園站 -->
