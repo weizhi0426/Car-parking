@@ -3,9 +3,7 @@
   <meta charset="UTF-8" />
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
+  
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%230066cc'/><text y='.9em' font-size='85' font-family='Arial' font-weight='bold' fill='white' x='18'>P</text></svg>">
 
   <meta name="apple-mobile-web-app-title" content="停車場控制">
@@ -117,6 +115,30 @@
     .status.success { background: #e8f5e9; color: #2e7d32; display: block; }
     .status.error   { background: #ffebee; color: #c62828; display: block; }
     .status.loading { background: #e3f2fd; color: #1565c0; display: block; }
+
+    .update-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #ff9800;
+      color: white;
+      padding: 12px 20px;
+      text-align: center;
+      font-weight: bold;
+      display: none;
+      z-index: 9999;
+    }
+
+    .update-banner.show {
+      display: block;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-100%); }
+      to { transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -325,8 +347,126 @@
     link.rel = 'apple-touch-icon';
     link.href = canvas.toDataURL('image/png');
     document.head.appendChild(link);
-
   </script>
+
+  <!-- ===== Service Worker 自動更新邏輯 ===== -->
+  <script>
+    const UPDATE_CHECK_INTERVAL = 30000; // 每 30 秒檢查一次
+    let updateAvailable = false;
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .then(registration => {
+          console.log('✅ Service Worker 已註冊');
+
+          // 定期檢查更新
+          setInterval(() => {
+            registration.update();
+          }, UPDATE_CHECK_INTERVAL);
+
+          // 監聽新版本
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            console.log('🔍 檢測到新的 Service Worker');
+
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                updateAvailable = true;
+                console.log('🆕 新版本可用！');
+                showUpdateBanner();
+              }
+            });
+          });
+
+          // 監聽來自 Service Worker 的訊息
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('🔄 Service Worker 已更新！');
+            if (updateAvailable) {
+              reloadPage();
+            }
+          });
+        })
+        .catch(err => {
+          console.error('❌ Service Worker 註冊失敗:', err);
+        });
+    }
+
+    // 直接檢查版本（備用方案）
+    async function checkVersionUpdate() {
+      try {
+        // 添加 timestamp 防止快取
+        const timestamp = new Date().getTime();
+        const response = await fetch(window.location.href + `?ts=${timestamp}`, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
+
+        const html = await response.text();
+        const parser = new DOMParser();
+        const newDoc = parser.parseFromString(html, 'text/html');
+
+        const currentTitle = document.title;
+        const newTitle = newDoc.title;
+
+        if (currentTitle !== newTitle) {
+          console.log(`📢 標題變更: "${currentTitle}" → "${newTitle}"`);
+          showUpdateBanner();
+          return true;
+        }
+
+        return false;
+      } catch (err) {
+        console.error('版本檢查失敗:', err);
+        return false;
+      }
+    }
+
+    function showUpdateBanner() {
+      const banner = document.getElementById('updateBanner');
+      if (banner) {
+        banner.classList.add('show');
+        setTimeout(() => {
+          reloadPage();
+        }, 2000);
+      } else {
+        setTimeout(reloadPage, 1000);
+      }
+    }
+
+    function reloadPage() {
+      console.log('🔄 重新加載頁面...');
+      if (caches) {
+        caches.keys().then(names => {
+          names.forEach(name => caches.delete(name));
+        });
+      }
+      window.location.href = window.location.href.split('?')[0] + `?nocache=${Date.now()}`;
+    }
+
+    // 每 30 秒檢查一次版本
+    setInterval(checkVersionUpdate, UPDATE_CHECK_INTERVAL);
+
+    // 頁面載入時立即檢查
+    window.addEventListener('load', () => {
+      setTimeout(checkVersionUpdate, 1000);
+    });
+
+    // 頁面重新獲得焦點時也檢查
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        console.log('👀 應用重新獲得焦點，檢查更新...');
+        checkVersionUpdate();
+      }
+    });
+  </script>
+
+  <div class="update-banner" id="updateBanner">
+    🔄 檢測到新版本，重新加載中...
+  </div>
 
 </body>
 </html>
