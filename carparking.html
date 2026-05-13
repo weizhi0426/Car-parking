@@ -254,12 +254,26 @@
     <!-- 益文一街站 -->
     <div class="card">
       <h2>📍 益文一街站</h2>
-      <div class="btn-group">
-        <h4>出口</h4>
-        <button class="btn btn-open"  onclick="woparkerControl('open', 1807, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="woparkerControl('close', 1807, this)">🔴 關門</button>
+      
+      <!-- 入口 -->
+      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
+        <div class="btn-group">
+          <button class="btn btn-open"  onclick="woparkerControl('open', 1808, this)">🟢 開門</button>
+          <button class="btn btn-close" onclick="woparkerControl('close', 1808, this)">🔴 關門</button>
+        </div>
+        <div class="status" id="status-woparker-1808"></div>
       </div>
-      <div class="status" id="status-woparker-1807"></div>
+    
+      <!-- 出口 -->
+      <div>
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
+        <div class="btn-group">
+          <button class="btn btn-open"  onclick="woparkerControl('open', 1807, this)">🟢 開門</button>
+          <button class="btn btn-close" onclick="woparkerControl('close', 1807, this)">🔴 關門</button>
+        </div>
+        <div class="status" id="status-woparker-1807"></div>
+      </div>
     </div>
 
   </div>
