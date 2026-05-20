@@ -11,7 +11,7 @@
   <meta name="application-name" content="停車場控制">
   <meta name="theme-color" content="#0066cc">
 
-  <title>停車場遠端控制0521v2</title>
+  <title>停車場遠端控制0521v3</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -132,8 +132,8 @@
     <div class="card">
       <h2>📍 太平路站</h2>
       <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  54, 'TOKEN_132', this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 54, 'TOKEN_132', this)">🔴 關門</button>
+        <button class="btn btn-open"  onclick="controlGate('open',  54, this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="controlGate('close', 54, this)">🔴 關門</button>
       </div>
       <div class="status" id="status-54"></div>
     </div>
@@ -142,8 +142,8 @@
     <div class="card">
       <h2>📍 三厝街站</h2>
       <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  71, 'TOKEN_132', this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 71, 'TOKEN_132', this)">🔴 關門</button>
+        <button class="btn btn-open"  onclick="controlGate('open',  71, this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="controlGate('close', 71, this)">🔴 關門</button>
       </div>
       <div class="status" id="status-71"></div>
     </div>
@@ -152,8 +152,8 @@
     <div class="card">
       <h2>📍 東英路站</h2>
       <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  157, 'TOKEN_238', this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 157, 'TOKEN_238', this)">🔴 關門</button>
+        <button class="btn btn-open"  onclick="controlGate('open',  157, this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="controlGate('close', 157, this)">🔴 關門</button>
       </div>
       <div class="status" id="status-157"></div>
     </div>
@@ -162,8 +162,8 @@
     <div class="card">
       <h2>📍 中華路站</h2>
       <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  168, 'TOKEN_260', this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 168, 'TOKEN_260', this)">🔴 關門</button>
+        <button class="btn btn-open"  onclick="controlGate('open',  168, this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="controlGate('close', 168, this)">🔴 關門</button>
       </div>
       <div class="status" id="status-168"></div>
     </div>
@@ -175,8 +175,8 @@
       <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
         <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
         <div class="btn-group">
-          <button class="btn btn-open"  onclick="controlGate('open',  228, 'TOKEN_260', this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="controlGate('close', 228, 'TOKEN_260', this)">🔴 關門</button>
+          <button class="btn btn-open"  onclick="controlGate('open',  228, this)">🟢 開門</button>
+          <button class="btn btn-close" onclick="controlGate('close', 228, this)">🔴 關門</button>
         </div>
         <div class="status" id="status-228"></div>
       </div>
@@ -185,8 +185,8 @@
       <div>
         <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
         <div class="btn-group">
-          <button class="btn btn-open"  onclick="controlGate('open',  229, 'TOKEN_260', this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="controlGate('close', 229, 'TOKEN_260', this)">🔴 關門</button>
+          <button class="btn btn-open"  onclick="controlGate('open',  229, this)">🟢 開門</button>
+          <button class="btn btn-close" onclick="controlGate('close', 229, this)">🔴 關門</button>
         </div>
         <div class="status" id="status-229"></div>
       </div>
@@ -196,8 +196,8 @@
     <div class="card">
       <h2>📍 豐樂公園站</h2>
       <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  269, 'TOKEN_260', this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 269, 'TOKEN_260', this)">🔴 關門</button>
+        <button class="btn btn-open"  onclick="controlGate('open',  269, this)">🟢 開門</button>
+        <button class="btn btn-close" onclick="controlGate('close', 269, this)">🔴 關門</button>
       </div>
       <div class="status" id="status-269"></div>
     </div>
@@ -287,8 +287,8 @@
   <script>
     const WORKER_URL = "https://parking-opener.abc920426920426.workers.dev";
 
-    // ===== 舊系統控制 (透過 Worker 代理) =====
-    async function controlGate(action, devId, tokenKey, btnEl) {
+    // ===== 舊系統控制 (透過 Worker 代理 - Token 存在 Worker 端) =====
+    async function controlGate(action, devId, btnEl) { // 移除了 tokenKey 參數
       const statusEl = document.getElementById(`status-${devId}`);
       const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
 
@@ -297,7 +297,8 @@
       statusEl.textContent = action === 'open' ? '⏳ 開門中...' : '⏳ 關門中...';
 
       try {
-        const res = await fetch(`${WORKER_URL}/api/paku/gate?action=${action}&dev_id=${devId}&tokenKey=${tokenKey}`, {
+        // 發送請求到 Worker，Worker 會在內部處理 Token
+        const res = await fetch(`${WORKER_URL}/api/paku/gate?action=${action}&dev_id=${devId}`, {
           method: 'GET'
         });
 
@@ -307,6 +308,7 @@
           statusEl.className = 'status success';
           statusEl.textContent = action === 'open' ? '✅ 開門成功！' : '✅ 關門成功！';
         } else {
+          // 如果 Worker 返回錯誤，會包含在 data.error 中
           throw new Error(data.error || `HTTP ${res.status}`);
         }
       } catch (err) {
