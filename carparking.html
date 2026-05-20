@@ -275,6 +275,35 @@
         <div class="status" id="status-woparker-1807"></div>
       </div>
     </div>
+     <!-- ===== Fortune88 系統 ===== -->
+    <div>
+      <div class="section-title">🅿️ Fortune88 系統</div>
+    </div>
+
+    <!-- 信義街站 -->
+    <div class="card">
+      <h2>📍 信義街站</h2>
+      
+      <!-- 入口 -->
+      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
+        <div class="btn-group">
+          <button class="btn btn-open"  onclick="fortune88Control('open', 'entrance', this)">🟢 開門</button>
+          <button class="btn btn-close" onclick="fortune88Control('close', 'entrance', this)">🔴 關門</button>
+        </div>
+        <div class="status" id="status-fortune88-entrance"></div>
+      </div>
+    
+      <!-- 出口 -->
+      <div>
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
+        <div class="btn-group">
+          <button class="btn btn-open"  onclick="fortune88Control('open', 'exit', this)">🟢 開門</button>
+          <button class="btn btn-close" onclick="fortune88Control('close', 'exit', this)">🔴 關門</button>
+        </div>
+        <div class="status" id="status-fortune88-exit"></div>
+      </div>
+    </div>
 
   </div>
 
@@ -489,6 +518,40 @@
         checkVersionUpdate();
       }
     });
+        // ===== Fortune88 系統控制 =====
+    async function fortune88Control(action, gate, btnEl) {
+      const statusEl = document.getElementById(`status-fortune88-${gate}`);
+      const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
+
+      allBtns.forEach(b => b.disabled = true);
+      statusEl.className = 'status loading';
+      statusEl.textContent = action === 'open' ? '⏳ 開門中...' : '⏳ 關門中...';
+
+      try {
+        const res = await fetch(`${WORKER_URL}/api/fortune88/${action}/${gate}`, {
+          method: 'GET'
+        });
+
+        const data = await res.json();
+        console.log(`[fortune88 ${gate}] 回應:`, data);
+
+        if (res.ok) {
+          statusEl.className = 'status success';
+          statusEl.textContent = action === 'open' ? '✅ 開門成功！' : '✅ 關門成功！';
+        } else {
+          throw new Error(JSON.stringify(data));
+        }
+      } catch (err) {
+        console.error(`[fortune88 ${gate}] 錯誤:`, err);
+        statusEl.className = 'status error';
+        statusEl.textContent = `❌ 失敗：${err.message.substring(0, 40)}`;
+      } finally {
+        setTimeout(() => {
+          allBtns.forEach(b => b.disabled = false);
+        }, 2000);
+      }
+    }
+
   </script>
 
   <div class="update-banner" id="updateBanner">
