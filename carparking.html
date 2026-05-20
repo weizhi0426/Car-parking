@@ -115,30 +115,6 @@
     .status.success { background: #e8f5e9; color: #2e7d32; display: block; }
     .status.error   { background: #ffebee; color: #c62828; display: block; }
     .status.loading { background: #e3f2fd; color: #1565c0; display: block; }
-
-    .update-banner {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: #ff9800;
-      color: white;
-      padding: 12px 20px;
-      text-align: center;
-      font-weight: bold;
-      display: none;
-      z-index: 9999;
-    }
-
-    .update-banner.show {
-      display: block;
-      animation: slideDown 0.3s ease-out;
-    }
-
-    @keyframes slideDown {
-      from { transform: translateY(-100%); }
-      to { transform: translateY(0); }
-    }
   </style>
 </head>
 <body>
@@ -275,7 +251,8 @@
         <div class="status" id="status-woparker-1807"></div>
       </div>
     </div>
-     <!-- ===== Fortune88 系統 ===== -->
+
+    <!-- ===== Fortune88 系統 ===== -->
     <div>
       <div class="section-title">🅿️ Fortune88 系統</div>
     </div>
@@ -308,12 +285,6 @@
   </div>
 
   <script>
-    const TOKENS = {
-      TOKEN_132: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTMyLCJleHAiOjIyOTY5MDUxODl9.76P3wIKx5R0X-8Lq0YrR6w-5KYdgGGkCdrDE3dTTDCo",
-      TOKEN_238: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MjM4LCJleHAiOjIyOTY5MDY3ODF9.Z9D7orkZx7ms6ViFaq_bHpM9yKWSJxm8waTrHktv-DQ",
-      TOKEN_260: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MjYwLCJleHAiOjIyOTY5MDY5OTV9.r8oue0WjLjqOgcET2J9lOyVgMt6uJgZTeGzB84VPMsI",
-    };
-
     const WORKER_URL = "https://parking-opener.abc920426920426.workers.dev";
 
     // ===== 舊系統控制 (透過 Worker 代理) =====
@@ -326,7 +297,7 @@
       statusEl.textContent = action === 'open' ? '⏳ 開門中...' : '⏳ 關門中...';
 
       try {
-        const res = await fetch(`${WORKER_URL}/api/paku/gate?action=${action}&dev_id=${devId}&token=${encodeURIComponent(TOKENS[tokenKey])}`, {
+        const res = await fetch(`${WORKER_URL}/api/paku/gate?action=${action}&dev_id=${devId}&tokenKey=${tokenKey}`, {
           method: 'GET'
         });
 
@@ -382,83 +353,7 @@
       }
     }
 
-    // ===== 動態產生 apple-touch-icon =====
-    const canvas = document.createElement('canvas');
-    canvas.width = 180;
-    canvas.height = 180;
-    const ctx = canvas.getContext('2d');
-
-    ctx.fillStyle = '#0066cc';
-    ctx.beginPath();
-    ctx.roundRect(0, 0, 180, 180, 30);
-    ctx.fill();
-
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 120px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('P', 90, 95);
-
-    const link = document.createElement('link');
-    link.rel = 'apple-touch-icon';
-    link.href = canvas.toDataURL('image/png');
-    document.head.appendChild(link);
-  </script>
-
-  <!-- ===== Service Worker 自動更新邏輯 ===== -->
-  <script>
-    // 直接檢查版本
-    async function checkVersionUpdate() {
-      try {
-        // 添加 timestamp 防止快取
-        const timestamp = new Date().getTime();
-        const response = await fetch(window.location.href + `?ts=${timestamp}`, {
-          method: 'GET',
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
-          }
-        });
-
-        const html = await response.text();
-        const parser = new DOMParser();
-        const newDoc = parser.parseFromString(html, 'text/html');
-
-        const currentTitle = document.title;
-        const newTitle = newDoc.title;
-
-        if (currentTitle !== newTitle) {
-          console.log(`📢 標題變更: "${currentTitle}" → "${newTitle}"`);
-          showUpdateBanner();
-          return true;
-        }
-
-        return false;
-      } catch (err) {
-        console.error('版本檢查失敗:', err);
-        return false;
-      }
-    }
-
-    
-
-    // 每 30 秒檢查一次版本
-    setInterval(checkVersionUpdate, UPDATE_CHECK_INTERVAL);
-
-    // 頁面載入時立即檢查
-    window.addEventListener('load', () => {
-      setTimeout(checkVersionUpdate, 1000);
-    });
-
-    // 頁面重新獲得焦點時也檢查
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        console.log('👀 應用重新獲得焦點，檢查更新...');
-        checkVersionUpdate();
-      }
-    });
-        // ===== Fortune88 系統控制 =====
+    // ===== Fortune88 系統控制 =====
     async function fortune88Control(action, gate, btnEl) {
       const statusEl = document.getElementById(`status-fortune88-${gate}`);
       const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
@@ -492,11 +387,77 @@
       }
     }
 
-  </script>
+    // ===== 版本更新檢查 =====
+    async function checkVersionUpdate() {
+      try {
+        const timestamp = new Date().getTime();
+        const response = await fetch(window.location.href + `?ts=${timestamp}`, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
 
-  <div class="update-banner" id="updateBanner">
-    🔄 檢測到新版本，重新加載中...
-  </div>
+        const html = await response.text();
+        const parser = new DOMParser();
+        const newDoc = parser.parseFromString(html, 'text/html');
+
+        const currentTitle = document.title;
+        const newTitle = newDoc.title;
+
+        if (currentTitle !== newTitle) {
+          console.log(`📢 標題變更: "${currentTitle}" → "${newTitle}"`);
+          window.location.reload();
+          return true;
+        }
+
+        return false;
+      } catch (err) {
+        console.error('版本檢查失敗:', err);
+        return false;
+      }
+    }
+
+    // 每 30 秒檢查一次版本
+    setInterval(() => checkVersionUpdate(), 30000);
+
+    // 頁面載入時立即檢查
+    window.addEventListener('load', () => {
+      setTimeout(() => checkVersionUpdate(), 1000);
+    });
+
+    // 頁面重新獲得焦點時也檢查
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        console.log('👀 應用重新獲得焦點，檢查更新...');
+        checkVersionUpdate();
+      }
+    });
+
+    // ===== 動態產生 apple-touch-icon =====
+    const canvas = document.createElement('canvas');
+    canvas.width = 180;
+    canvas.height = 180;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#0066cc';
+    ctx.beginPath();
+    ctx.roundRect(0, 0, 180, 180, 30);
+    ctx.fill();
+
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 120px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('P', 90, 95);
+
+    const link = document.createElement('link');
+    link.rel = 'apple-touch-icon';
+    link.href = canvas.toDataURL('image/png');
+    document.head.appendChild(link);
+  </script>
 
 </body>
 </html>
