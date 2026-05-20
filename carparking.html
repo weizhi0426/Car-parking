@@ -441,27 +441,7 @@
       }
     }
 
-    function showUpdateBanner() {
-      const banner = document.getElementById('updateBanner');
-      if (banner) {
-        banner.classList.add('show');
-        setTimeout(() => {
-          reloadPage();
-        }, 2000);
-      } else {
-        setTimeout(reloadPage, 1000);
-      }
-    }
-
-    function reloadPage() {
-      console.log('🔄 重新加載頁面...');
-      if (caches) {
-        caches.keys().then(names => {
-          names.forEach(name => caches.delete(name));
-        });
-      }
-      window.location.href = window.location.href.split('?')[0] + `?nocache=${Date.now()}`;
-    }
+    
 
     // 每 30 秒檢查一次版本
     setInterval(checkVersionUpdate, UPDATE_CHECK_INTERVAL);
