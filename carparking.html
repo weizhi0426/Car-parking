@@ -11,7 +11,7 @@
   <meta name="application-name" content="停車場控制">
   <meta name="theme-color" content="#0066cc">
 
-  <title>停車場遠端控制0521</title>
+  <title>停車場遠端控制0521v1</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -407,47 +407,7 @@
 
   <!-- ===== Service Worker 自動更新邏輯 ===== -->
   <script>
-    const UPDATE_CHECK_INTERVAL = 30000; // 每 30 秒檢查一次
-    let updateAvailable = false;
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .then(registration => {
-          console.log('✅ Service Worker 已註冊');
-
-          // 定期檢查更新
-          setInterval(() => {
-            registration.update();
-          }, UPDATE_CHECK_INTERVAL);
-
-          // 監聽新版本
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            console.log('🔍 檢測到新的 Service Worker');
-
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                updateAvailable = true;
-                console.log('🆕 新版本可用！');
-                showUpdateBanner();
-              }
-            });
-          });
-
-          // 監聽來自 Service Worker 的訊息
-          navigator.serviceWorker.addEventListener('controllerchange', () => {
-            console.log('🔄 Service Worker 已更新！');
-            if (updateAvailable) {
-              reloadPage();
-            }
-          });
-        })
-        .catch(err => {
-          console.error('❌ Service Worker 註冊失敗:', err);
-        });
-    }
-
-    // 直接檢查版本（備用方案）
+    // 直接檢查版本
     async function checkVersionUpdate() {
       try {
         // 添加 timestamp 防止快取
