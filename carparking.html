@@ -11,7 +11,7 @@
   <meta name="application-name" content="停車場控制">
   <meta name="theme-color" content="#0066cc">
 
-  <title>停車場遠端控制0522v4.1</title>
+  <title>停車場遠端控制0522v4.2</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -119,7 +119,7 @@
 </head>
 <body>
 
-  <h1>🅿️ 停車場遠端控制v4.1</h1>
+  <h1>🅿️ 停車場遠端控制v4.2</h1>
 
   <div class="cards">
 
@@ -282,9 +282,9 @@
       </div>
     </div>
 
-    <!-- ===== 新系統 ===== -->
+    <!-- ===== 公益路系統 ===== -->
     <div>
-      <div class="section-title">🏢 新系統</div>
+      <div class="section-title">🏢 公益路系統</div>
     </div>
 
     <!-- 公益路站 -->
@@ -295,20 +295,20 @@
       <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
         <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
         <div class="btn-group">
-          <button class="btn btn-open"  onclick="newParkingControl('entrance', this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="newParkingControl('close-entrance', this)">🔴 關門</button>
+          <button class="btn btn-open"  onclick="gongyiControl('open-entrance', this)">🟢 開門</button>
+          <button class="btn btn-close" onclick="gongyiControl('close-entrance', this)">🔴 關門</button>
         </div>
-        <div class="status" id="status-new-parking-entrance"></div>
+        <div class="status" id="status-gongyi-entrance"></div>
       </div>
-    
+
       <!-- 出口 -->
       <div>
         <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
         <div class="btn-group">
-          <button class="btn btn-open"  onclick="newParkingControl('exit', this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="newParkingControl('close-exit', this)">🔴 關門</button>
+          <button class="btn btn-open"  onclick="gongyiControl('open-exit', this)">🟢 開門</button>
+          <button class="btn btn-close" onclick="gongyiControl('close-exit', this)">🔴 關門</button>
         </div>
-        <div class="status" id="status-new-parking-exit"></div>
+        <div class="status" id="status-gongyi-exit"></div>
       </div>
     </div>
 
@@ -420,28 +420,23 @@
       }
     }
 
-    // ===== 新系統控制（公益路站等）=====
-    async function newParkingControl(action, btnEl) {
+    // ===== 公益路系統控制 =====
+    async function gongyiControl(action, btnEl) {
       let gateType = '';
       let statusId = '';
-      let apiAction = '';
 
-      if (action === 'entrance') {
+      if (action === 'open-entrance') {
         gateType = '入口';
-        statusId = 'status-new-parking-entrance';
-        apiAction = 'open-entrance';
-      } else if (action === 'exit') {
-        gateType = '出口';
-        statusId = 'status-new-parking-exit';
-        apiAction = 'open-exit';
+        statusId = 'status-gongyi-entrance';
       } else if (action === 'close-entrance') {
         gateType = '入口';
-        statusId = 'status-new-parking-entrance';
-        apiAction = 'close-entrance';
+        statusId = 'status-gongyi-entrance';
+      } else if (action === 'open-exit') {
+        gateType = '出口';
+        statusId = 'status-gongyi-exit';
       } else if (action === 'close-exit') {
         gateType = '出口';
-        statusId = 'status-new-parking-exit';
-        apiAction = 'close-exit';
+        statusId = 'status-gongyi-exit';
       }
 
       const statusEl = document.getElementById(statusId);
@@ -452,12 +447,12 @@
       statusEl.textContent = action.includes('open') ? '⏳ 開門中...' : '⏳ 關門中...';
 
       try {
-        const res = await fetch(`${WORKER_URL}/api/new-parking/${apiAction}`, {
+        const res = await fetch(`${WORKER_URL}/api/gongyi/${action}`, {
           method: 'GET'
         });
 
         const data = await res.json();
-        console.log(`[新系統 ${gateType}] 回應:`, data);
+        console.log(`[公益路 ${gateType}] 回應:`, data);
 
         if (res.ok && data.success) {
           statusEl.className = 'status success';
@@ -466,9 +461,8 @@
           throw new Error(data.error || `HTTP ${res.status}`);
         }
       } catch (err) {
-        console.error(`[新系統 ${gateType}] 錯誤:`, err.message);
+        console.error(`[公益路 ${gateType}] 錯誤:`, err.message);
         statusEl.className = 'status error';
-        // 只顯示前 50 個字元
         const shortMsg = err.message.substring(0, 50);
         statusEl.textContent = `❌ 失敗：${shortMsg}`;
       } finally {
