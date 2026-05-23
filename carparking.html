@@ -1,562 +1,808 @@
 <!DOCTYPE html>
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%230066cc'/><text y='.9em' font-size='85' font-family='Arial' font-weight='bold' fill='white' x='18'>P</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🅿️ 停車場統一控制系統 v2.1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <meta name="apple-mobile-web-app-title" content="停車場控制">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="停車場控制">
-  <meta name="theme-color" content="#0066cc">
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-  <title>停車場遠端控制0522v4.1</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f0f2f5;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
 
-    h1 {
-      font-size: 1.5rem;
-      color: #333;
-      margin-bottom: 24px;
-      letter-spacing: 1px;
-    }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
 
-    .section-title {
-      font-size: 0.95rem;
-      color: #666;
-      margin-top: 28px;
-      margin-bottom: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      padding-left: 8px;
-    }
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
 
-    .section-title:first-child {
-      margin-top: 0;
-    }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
 
-    .cards {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      width: 100%;
-      max-width: 360px;
-    }
+        .system-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
 
-    .card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      padding: 28px 32px;
-    }
+        .system-card:hover {
+            transform: translateY(-5px);
+        }
 
-    .card h2 {
-      font-size: 1.2rem;
-      color: #444;
-      margin-bottom: 20px;
-      text-align: center;
-      border-bottom: 2px solid #f0f0f0;
-      padding-bottom: 12px;
-    }
+        .system-card h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
 
-    .btn-group {
-      display: flex;
-      gap: 12px;
-    }
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+        }
 
-    .btn {
-      flex: 1;
-      padding: 16px 0;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      letter-spacing: 1px;
-    }
+        .btn {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .btn-open { background: #4CAF50; color: white; }
-    .btn-open:hover { background: #43a047; transform: scale(1.03); }
-    .btn-open:active { transform: scale(0.97); }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
-    .btn-close { background: #f44336; color: white; }
-    .btn-close:hover { background: #e53935; transform: scale(1.03); }
-    .btn-close:active { transform: scale(0.97); }
+        .btn-open {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
 
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
+        .btn-open:hover:not(:disabled) {
+            box-shadow: 0 8px 20px rgba(17, 153, 142, 0.4);
+            transform: scale(1.05);
+        }
 
-    .status {
-      margin-top: 14px;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      text-align: center;
-      display: none;
-    }
+        .btn-close {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
 
-    .status.success { background: #e8f5e9; color: #2e7d32; display: block; }
-    .status.error   { background: #ffebee; color: #c62828; display: block; }
-    .status.loading { background: #e3f2fd; color: #1565c0; display: block; }
-  </style>
+        .btn-close:hover:not(:disabled) {
+            box-shadow: 0 8px 20px rgba(235, 51, 73, 0.4);
+            transform: scale(1.05);
+        }
+
+        .status-bar {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-bar p {
+            margin: 8px 0;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .status-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .status-value {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .logs-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .logs-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .logs-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .log-entry {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .log-entry:hover {
+            background: #f8f9fa;
+        }
+
+        .log-time {
+            color: #999;
+            font-size: 0.85em;
+            min-width: 150px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .log-system {
+            font-weight: bold;
+            min-width: 100px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        .log-system.paku {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .log-system.fortune88 {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .log-system.woparker {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .log-system.new-parking {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .log-message {
+            flex: 1;
+            color: #555;
+        }
+
+        .log-status {
+            min-width: 80px;
+            text-align: right;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .log-status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .log-status.failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .log-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-button {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #999;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-button:hover {
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #c3e6cb;
+        }
+    </style>
 </head>
 <body>
-
-  <h1>🅿️ 停車場遠端控制v4.1</h1>
-
-  <div class="cards">
-
-    <!-- ===== 舊系統 ===== -->
-    <div>
-      <div class="section-title">📍 宏碁系統</div>
-    </div>
-
-    <!-- 太平路站 -->
-    <div class="card">
-      <h2>📍 太平路站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  54, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 54, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-54"></div>
-    </div>
-
-    <!-- 三厝街站 -->
-    <div class="card">
-      <h2>📍 三厝街站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  71, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 71, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-71"></div>
-    </div>
-
-    <!-- 東英路站 -->
-    <div class="card">
-      <h2>📍 東英路站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  157, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 157, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-157"></div>
-    </div>
-
-    <!-- 中華路站 -->
-    <div class="card">
-      <h2>📍 中華路站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  168, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 168, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-168"></div>
-    </div>
-
-    <div class="card">
-      <h2>📍 永春東七路站</h2>
-      
-      <!-- 入口 -->
-      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="controlGate('open',  228, this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="controlGate('close', 228, this)">🔴 關門</button>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🅿️ 停車場統一控制系統</h1>
+            <p>v2.1 - 多系統整合平台</p>
         </div>
-        <div class="status" id="status-228"></div>
-      </div>
-    
-      <!-- 出口 -->
-      <div>
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="controlGate('open',  229, this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="controlGate('close', 229, this)">🔴 關門</button>
+
+        <!-- Main Control Panel -->
+        <div class="main-grid">
+            <!-- Paku 系統控制 -->
+            <div class="system-card">
+                <h2>🚗 Paku 舊系統</h2>
+                <div class="control-buttons">
+                    <button class="btn btn-open" onclick="controlPaku('open', '54')">
+                        🔓 開啟<br><small>設備 54</small>
+                    </button>
+                    <button class="btn btn-close" onclick="controlPaku('close', '54')">
+                        🔒 關閉<br><small>設備 54</small>
+                    </button>
+                </div>
+                <div class="status-bar">
+                    <p><span class="status-label">系統狀態：</span><span class="status-value">就緒</span></p>
+                    <p><span class="status-label">支援設備：</span><span class="status-value">54, 71, 157, 168, 228, 229, 269</span></p>
+                </div>
+            </div>
+
+            <!-- Fortune88 系統控制 -->
+            <div class="system-card">
+                <h2>🏢 Fortune88 車P信義街</h2>
+                <div class="control-buttons">
+                    <button class="btn btn-open" onclick="controlFortune88('open', 'entrance')">
+                        🔓 開啟<br><small>入口</small>
+                    </button>
+                    <button class="btn btn-close" onclick="controlFortune88('close', 'entrance')">
+                        🔒 關閉<br><small>入口</small>
+                    </button>
+                </div>
+                <div class="control-buttons" style="margin-top: 15px;">
+                    <button class="btn btn-open" onclick="controlFortune88('open', 'exit')">
+                        🔓 開啟<br><small>出口</small>
+                    </button>
+                    <button class="btn btn-close" onclick="controlFortune88('close', 'exit')">
+                        🔒 關閉<br><small>出口</small>
+                    </button>
+                </div>
+                <div class="status-bar">
+                    <p><span class="status-label">地點：</span><span class="status-value">台中市東區信義街79號</span></p>
+                    <p><span class="status-label">停車位：</span><span class="status-value">17 位</span></p>
+                </div>
+            </div>
+
+            <!-- WoParker 系統控制 -->
+            <div class="system-card">
+                <h2>🚁 WoParker 系統</h2>
+                <div class="control-buttons">
+                    <button class="btn btn-open" onclick="controlWoparker('open', '1')">
+                        🔓 開啟<br><small>閘門 1</small>
+                    </button>
+                    <button class="btn btn-close" onclick="controlWoparker('close', '1')">
+                        🔒 關閉<br><small>閘門 1</small>
+                    </button>
+                </div>
+                <div class="status-bar">
+                    <p><span class="status-label">系統狀態：</span><span class="status-value">就緒</span></p>
+                    <p><span class="status-label">帳號：</span><span class="status-value">s705007</span></p>
+                </div>
+            </div>
+
+            <!-- 新系統控制（公益路站）-->
+            <div class="system-card">
+                <h2>🆕 公益路新系統</h2>
+                <div class="control-buttons">
+                    <button class="btn btn-open" onclick="controlNewParking('open-entrance')">
+                        🔓 開啟<br><small>入口</small>
+                    </button>
+                    <button class="btn btn-close" onclick="controlNewParking('close-entrance')">
+                        🔒 關閉<br><small>入口</small>
+                    </button>
+                </div>
+                <div class="control-buttons" style="margin-top: 15px;">
+                    <button class="btn btn-open" onclick="controlNewParking('open-exit')">
+                        🔓 開啟<br><small>出口</small>
+                    </button>
+                    <button class="btn btn-close" onclick="controlNewParking('close-exit')">
+                        🔒 關閉<br><small>出口</small>
+                    </button>
+                </div>
+                <div class="status-bar">
+                    <p><span class="status-label">IP：</span><span class="status-value">122.117.0.168:15000</span></p>
+                    <p><span class="status-label">狀態：</span><span class="status-value">測試中</span></p>
+                </div>
+            </div>
         </div>
-        <div class="status" id="status-229"></div>
-      </div>
-    </div>
 
-    <!-- 豐樂公園站 -->
-    <div class="card">
-      <h2>📍 豐樂公園站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  269, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 269, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-269"></div>
-    </div>
+        <!-- Logs & Stats Section -->
+        <div class="logs-section">
+            <h2>📊 操作紀錄 & 統計</h2>
+            
+            <div class="tabs">
+                <button class="tab-button active" onclick="switchTab('logs')">操作紀錄</button>
+                <button class="tab-button" onclick="switchTab('stats')">統計數據</button>
+                <button class="tab-button" onclick="switchTab('settings')">設定</button>
+            </div>
 
-    <!-- ===== woparker 新系統 ===== -->
-    <div>
-      <div class="section-title">woparker 系統</div>
-    </div>
+            <!-- Logs Tab -->
+            <div id="logs" class="tab-content active">
+                <div style="margin-bottom: 15px;">
+                    <button class="btn" style="background: #667eea; color: white; width: 150px;" onclick="clearLogs()">
+                        🗑️ 清空紀錄
+                    </button>
+                </div>
+                <div class="logs-container" id="logsContainer">
+                    <div class="log-entry" style="justify-content: center; color: #999;">
+                        📭 暫無操作紀錄
+                    </div>
+                </div>
+            </div>
 
-    <!-- 民生北路 A站 -->
-    <div class="card">
-      <h2>📍 民生北路 A站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="woparkerControl('open', 1729, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="woparkerControl('close', 1729, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-woparker-1729"></div>
-    </div>
+            <!-- Stats Tab -->
+            <div id="stats" class="tab-content">
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-label">總操作次數</div>
+                        <div class="stat-number" id="totalOps">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">成功次數</div>
+                        <div class="stat-number" id="successOps">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">失敗次數</div>
+                        <div class="stat-number" id="failedOps">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">成功率</div>
+                        <div class="stat-number" id="successRate">100%</div>
+                    </div>
+                </div>
+                <div id="systemStats" style="margin-top: 20px;"></div>
+            </div>
 
-    <!-- 民生北路 B站 -->
-    <div class="card">
-      <h2>📍 民生北路 B站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="woparkerControl('open', 1731, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="woparkerControl('close', 1731, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-woparker-1731"></div>
-    </div>
-
-    <!-- 益文一街站 -->
-    <div class="card">
-      <h2>📍 益文一街站</h2>
-      
-      <!-- 入口 -->
-      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="woparkerControl('open', 1808, this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="woparkerControl('close', 1808, this)">🔴 關門</button>
+            <!-- Settings Tab -->
+            <div id="settings" class="tab-content">
+                <h3 style="color: #333; margin-bottom: 15px;">⚙️ 系統設定</h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <p><strong>Worker API 端點：</strong></p>
+                    <input type="text" id="apiEndpoint" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #ddd;" value="https://smartpark.your-domain.workers.dev">
+                    
+                    <p style="margin-top: 15px;"><strong>API 超時時間（秒）：</strong></p>
+                    <input type="number" id="apiTimeout" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #ddd;" value="30">
+                    
+                    <button class="btn" style="background: #667eea; color: white; width: 150px; margin-top: 15px;" onclick="saveSettings()">
+                        💾 保存設定
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="status" id="status-woparker-1808"></div>
-      </div>
-    
-      <!-- 出口 -->
-      <div>
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="woparkerControl('open', 1807, this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="woparkerControl('close', 1807, this)">🔴 關門</button>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2026 停車場統一控制系統 | 最後更新：<span id="lastUpdate">--:--:--</span></p>
         </div>
-        <div class="status" id="status-woparker-1807"></div>
-      </div>
     </div>
 
-    <!-- ===== Fortune88 系統 ===== -->
-    <div>
-      <div class="section-title">🅿️ Fortune88 系統</div>
-    </div>
+    <script>
+        // ==================== 應用狀態 ====================
+        let appState = {
+            apiEndpoint: localStorage.getItem('apiEndpoint') || 'https://smartpark.your-domain.workers.dev',
+            apiTimeout: parseInt(localStorage.getItem('apiTimeout')) || 30,
+            logs: JSON.parse(localStorage.getItem('operationLogs')) || [],
+            stats: {
+                total: 0,
+                success: 0,
+                failed: 0
+            }
+        };
 
-    <!-- 信義街站 -->
-    <div class="card">
-      <h2>📍 信義街站</h2>
-      
-      <!-- 入口 -->
-      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="fortune88Control('open', 'entrance', this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="fortune88Control('close', 'entrance', this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-fortune88-entrance"></div>
-      </div>
-    
-      <!-- 出口 -->
-      <div>
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="fortune88Control('open', 'exit', this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="fortune88Control('close', 'exit', this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-fortune88-exit"></div>
-      </div>
-    </div>
+        // ==================== 工具函數 ====================
 
-    <!-- ===== 新系統 ===== -->
-    <div>
-      <div class="section-title">🏢 新系統</div>
-    </div>
-
-    <!-- 公益路站 -->
-    <div class="card">
-      <h2>📍 公益路站</h2>
-      
-      <!-- 入口 -->
-      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="newParkingControl('entrance', this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="newParkingControl('close-entrance', this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-new-parking-entrance"></div>
-      </div>
-    
-      <!-- 出口 -->
-      <div>
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="newParkingControl('exit', this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="newParkingControl('close-exit', this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-new-parking-exit"></div>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-    const WORKER_URL = "https://parking-opener.abc920426920426.workers.dev";
-
-    // 判斷是否為本地檔案
-    const isLocalFile = window.location.protocol === 'file:';
-
-    // ===== 舊系統控制 (透過 Worker 代理 - Token 存在 Worker 端) =====
-    async function controlGate(action, devId, btnEl) {
-      const statusEl = document.getElementById(`status-${devId}`);
-      const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
-
-      allBtns.forEach(b => b.disabled = true);
-      statusEl.className = 'status loading';
-      statusEl.textContent = action === 'open' ? '⏳ 開門中...' : '⏳ 關門中...';
-
-      try {
-        const res = await fetch(`${WORKER_URL}/api/paku/gate?action=${action}&dev_id=${devId}`, {
-          method: 'GET'
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          statusEl.className = 'status success';
-          statusEl.textContent = action === 'open' ? '✅ 開門成功！' : '✅ 關門成功！';
-        } else {
-          throw new Error(data.error || `HTTP ${res.status}`);
-        }
-      } catch (err) {
-        statusEl.className = 'status error';
-        statusEl.textContent = `❌ 失敗：${err.message}`;
-      } finally {
-        setTimeout(() => {
-          allBtns.forEach(b => b.disabled = false);
-        }, 2000);
-      }
-    }
-
-    // ===== woparker 新系統控制 (透過 Worker 代理) =====
-    async function woparkerControl(action, id, btnEl) {
-      const statusEl = document.getElementById(`status-woparker-${id}`);
-      const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
-
-      allBtns.forEach(b => b.disabled = true);
-      statusEl.className = 'status loading';
-      statusEl.textContent = action === 'open' ? '⏳ 開門中...' : '⏳ 關門中...';
-
-      try {
-        const res = await fetch(`${WORKER_URL}/api/woparker/${action}?id=${id}`, {
-          method: 'GET'
-        });
-
-        const data = await res.json();
-        console.log(`[woparker id=${id}] 回應:`, data);
-
-        if (res.ok) {
-          statusEl.className = 'status success';
-          statusEl.textContent = action === 'open' ? '✅ 開門成功！' : '✅ 關門成功！';
-        } else {
-          throw new Error(JSON.stringify(data));
-        }
-      } catch (err) {
-        console.error(`[woparker id=${id}] 錯誤:`, err);
-        statusEl.className = 'status error';
-        statusEl.textContent = `❌ 失敗：${err.message.substring(0, 40)}`;
-      } finally {
-        setTimeout(() => {
-          allBtns.forEach(b => b.disabled = false);
-        }, 2000);
-      }
-    }
-
-    // ===== Fortune88 系統控制 =====
-    async function fortune88Control(action, gate, btnEl) {
-      const statusEl = document.getElementById(`status-fortune88-${gate}`);
-      const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
-
-      allBtns.forEach(b => b.disabled = true);
-      statusEl.className = 'status loading';
-      statusEl.textContent = action === 'open' ? '⏳ 開門中...' : '⏳ 關門中...';
-
-      try {
-        const res = await fetch(`${WORKER_URL}/api/fortune88/${action}/${gate}`, {
-          method: 'GET'
-        });
-
-        const data = await res.json();
-        console.log(`[fortune88 ${gate}] 回應:`, data);
-
-        if (res.ok) {
-          statusEl.className = 'status success';
-          statusEl.textContent = action === 'open' ? '✅ 開門成功！' : '✅ 關門成功！';
-        } else {
-          throw new Error(JSON.stringify(data));
-        }
-      } catch (err) {
-        console.error(`[fortune88 ${gate}] 錯誤:`, err);
-        statusEl.className = 'status error';
-        statusEl.textContent = `❌ 失敗：${err.message.substring(0, 40)}`;
-      } finally {
-        setTimeout(() => {
-          allBtns.forEach(b => b.disabled = false);
-        }, 2000);
-      }
-    }
-
-    // ===== 新系統控制（公益路站等）=====
-    async function newParkingControl(action, btnEl) {
-      let gateType = '';
-      let statusId = '';
-      let apiAction = '';
-
-      if (action === 'entrance') {
-        gateType = '入口';
-        statusId = 'status-new-parking-entrance';
-        apiAction = 'open-entrance';
-      } else if (action === 'exit') {
-        gateType = '出口';
-        statusId = 'status-new-parking-exit';
-        apiAction = 'open-exit';
-      } else if (action === 'close-entrance') {
-        gateType = '入口';
-        statusId = 'status-new-parking-entrance';
-        apiAction = 'close-entrance';
-      } else if (action === 'close-exit') {
-        gateType = '出口';
-        statusId = 'status-new-parking-exit';
-        apiAction = 'close-exit';
-      }
-
-      const statusEl = document.getElementById(statusId);
-      const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
-
-      allBtns.forEach(b => b.disabled = true);
-      statusEl.className = 'status loading';
-      statusEl.textContent = action.includes('open') ? '⏳ 開門中...' : '⏳ 關門中...';
-
-      try {
-        const res = await fetch(`${WORKER_URL}/api/new-parking/${apiAction}`, {
-          method: 'GET'
-        });
-
-        const data = await res.json();
-        console.log(`[新系統 ${gateType}] 回應:`, data);
-
-        if (res.ok && data.success) {
-          statusEl.className = 'status success';
-          statusEl.textContent = action.includes('open') ? '✅ 開門成功！' : '✅ 關門成功！';
-        } else {
-          throw new Error(data.error || `HTTP ${res.status}`);
-        }
-      } catch (err) {
-        console.error(`[新系統 ${gateType}] 錯誤:`, err.message);
-        statusEl.className = 'status error';
-        // 只顯示前 50 個字元
-        const shortMsg = err.message.substring(0, 50);
-        statusEl.textContent = `❌ 失敗：${shortMsg}`;
-      } finally {
-        setTimeout(() => {
-          allBtns.forEach(b => b.disabled = false);
-        }, 2000);
-      }
-    }
-
-    // ===== 版本更新檢查 (僅在網路環境運作) =====
-    async function checkVersionUpdate() {
-      // 本地檔案 (file://) 無法自我 fetch，跳過檢查
-      if (isLocalFile) {
-        console.log('📌 本地檔案模式，跳過版本檢查');
-        return false;
-      }
-
-      try {
-        const timestamp = new Date().getTime();
-        const response = await fetch(window.location.href + `?ts=${timestamp}`, {
-          method: 'GET',
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
-          }
-        });
-
-        const html = await response.text();
-        const parser = new DOMParser();
-        const newDoc = parser.parseFromString(html, 'text/html');
-
-        const currentTitle = document.title;
-        const newTitle = newDoc.title;
-
-        if (currentTitle !== newTitle) {
-          console.log(`📢 標題變更: "${currentTitle}" → "${newTitle}"`);
-          window.location.reload();
-          return true;
+        function updateLastUpdate() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = 
+                `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
         }
 
-        return false;
-      } catch (err) {
-        console.warn('⚠️ 版本檢查失敗 (網路問題):', err.message);
-        return false;
-      }
-    }
+        setInterval(updateLastUpdate, 1000);
 
-    // 每 30 秒檢查一次版本（僅限網路環境）
-    if (!isLocalFile) {
-      setInterval(() => checkVersionUpdate(), 30000);
-    }
+        function addLog(system, action, gate, status, details = {}) {
+            const logEntry = {
+                timestamp: new Date().toLocaleString('zh-TW'),
+                system,
+                action,
+                gate,
+                status,
+                details
+            };
 
-    // 頁面載入時立即檢查
-    window.addEventListener('load', () => {
-      setTimeout(() => checkVersionUpdate(), 1000);
-    });
+            appState.logs.unshift(logEntry);
+            
+            // 保留最後 500 條紀錄
+            if (appState.logs.length > 500) {
+                appState.logs.pop();
+            }
 
-    // 頁面重新獲得焦點時也檢查
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && !isLocalFile) {
-        console.log('👀 應用重新獲得焦點，檢查更新...');
-        checkVersionUpdate();
-      }
-    });
+            localStorage.setItem('operationLogs', JSON.stringify(appState.logs));
+            
+            // 更新統計
+            appState.stats.total++;
+            if (status === 'success') {
+                appState.stats.success++;
+            } else if (status === 'failed') {
+                appState.stats.failed++;
+            }
 
-    // ===== 動態產生 apple-touch-icon =====
-    const canvas = document.createElement('canvas');
-    canvas.width = 180;
-    canvas.height = 180;
-    const ctx = canvas.getContext('2d');
+            renderLogs();
+            updateStats();
+        }
 
-    ctx.fillStyle = '#0066cc';
-    ctx.beginPath();
-    ctx.roundRect(0, 0, 180, 180, 30);
-    ctx.fill();
+        function renderLogs() {
+            const logsContainer = document.getElementById('logsContainer');
+            
+            if (appState.logs.length === 0) {
+                logsContainer.innerHTML = '<div class="log-entry" style="justify-content: center; color: #999;">📭 暫無操作紀錄</div>';
+                return;
+            }
 
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 120px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('P', 90, 95);
+            logsContainer.innerHTML = appState.logs.map(log => `
+                <div class="log-entry">
+                    <span class="log-time">${log.timestamp}</span>
+                    <span class="log-system ${log.system.toLowerCase()}">${log.system}</span>
+                    <span class="log-message">${log.action} ${log.gate} ${log.details?.message || ''}</span>
+                    <span class="log-status ${log.status}">${log.status.toUpperCase()}</span>
+                </div>
+            `).join('');
+        }
 
-    const link = document.createElement('link');
-    link.rel = 'apple-touch-icon';
-    link.href = canvas.toDataURL('image/png');
-    document.head.appendChild(link);
-  </script>
+        function updateStats() {
+            document.getElementById('totalOps').textContent = appState.stats.total;
+            document.getElementById('successOps').textContent = appState.stats.success;
+            document.getElementById('failedOps').textContent = appState.stats.failed;
+            
+            const rate = appState.stats.total === 0 ? 100 : Math.round((appState.stats.success / appState.stats.total) * 100);
+            document.getElementById('successRate').textContent = `${rate}%`;
 
+            // 系統統計
+            const systemStats = {};
+            appState.logs.forEach(log => {
+                if (!systemStats[log.system]) {
+                    systemStats[log.system] = { total: 0, success: 0, failed: 0 };
+                }
+                systemStats[log.system].total++;
+                if (log.status === 'success') {
+                    systemStats[log.system].success++;
+                } else if (log.status === 'failed') {
+                    systemStats[log.system].failed++;
+                }
+            });
+
+            const statsHtml = Object.entries(systemStats).map(([system, data]) => `
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                    <strong>${system}</strong>
+                    <p style="margin-top: 8px; font-size: 0.9em;">
+                        總數: <span style="color: #667eea;">${data.total}</span> | 
+                        成功: <span style="color: #11998e;">${data.success}</span> | 
+                        失敗: <span style="color: #eb3349;">${data.failed}</span>
+                    </p>
+                </div>
+            `).join('');
+
+            document.getElementById('systemStats').innerHTML = statsHtml || '<p style="color: #999;">暫無統計數據</p>';
+        }
+
+        function switchTab(tabName) {
+            // 隱藏所有內容
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // 顯示選中的標籤
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function clearLogs() {
+            if (confirm('確認清空所有操作紀錄？')) {
+                appState.logs = [];
+                appState.stats = { total: 0, success: 0, failed: 0 };
+                localStorage.removeItem('operationLogs');
+                renderLogs();
+                updateStats();
+            }
+        }
+
+        function saveSettings() {
+            appState.apiEndpoint = document.getElementById('apiEndpoint').value;
+            appState.apiTimeout = parseInt(document.getElementById('apiTimeout').value);
+
+            localStorage.setItem('apiEndpoint', appState.apiEndpoint);
+            localStorage.setItem('apiTimeout', appState.apiTimeout.toString());
+
+            alert('✅ 設定已保存！');
+        }
+
+        // ==================== API 呼叫函數 ====================
+
+        async function apiCall(endpoint, params = {}) {
+            const url = new URL(appState.apiEndpoint + endpoint);
+            Object.entries(params).forEach(([key, value]) => {
+                url.searchParams.append(key, value);
+            });
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), appState.apiTimeout * 1000);
+
+                const response = await fetch(url.toString(), {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API 錯誤:', error);
+                throw error;
+            }
+        }
+
+        // ==================== 控制函數 ====================
+
+        async function controlPaku(action, devId) {
+            const button = event.target.closest('button');
+            button.disabled = true;
+            button.innerHTML = '<span class="loading"></span> 處理中...';
+
+            try {
+                const response = await apiCall('/api/paku/gate', {
+                    action: action,
+                    dev_id: devId
+                });
+
+                addLog('Paku', action, `設備 ${devId}`, 'success', { response });
+                showMessage(`✅ ${action.toUpperCase()} 成功！`, 'success');
+            } catch (error) {
+                addLog('Paku', action, `設備 ${devId}`, 'failed', { error: error.message });
+                showMessage(`❌ ${action.toUpperCase()} 失敗: ${error.message}`, 'error');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = action === 'open' ? '🔓 開啟<br><small>設備 54</small>' : '🔒 關閉<br><small>設備 54</small>';
+            }
+        }
+
+        async function controlFortune88(action, gate) {
+            const button = event.target.closest('button');
+            button.disabled = true;
+            button.innerHTML = '<span class="loading"></span> 處理中...';
+
+            try {
+                const response = await apiCall(`/api/fortune88/${action}/${gate}`);
+
+                addLog('Fortune88', action, gate, 'success', { response });
+                showMessage(`✅ ${action.toUpperCase()} ${gate} 成功！`, 'success');
+            } catch (error) {
+                addLog('Fortune88', action, gate, 'failed', { error: error.message });
+                showMessage(`❌ ${action.toUpperCase()} ${gate} 失敗: ${error.message}`, 'error');
+            } finally {
+                button.disabled = false;
+                const label = gate === 'entrance' ? '入口' : '出口';
+                button.innerHTML = action === 'open' ? `🔓 開啟<br><small>${label}</small>` : `🔒 關閉<br><small>${label}</small>`;
+            }
+        }
+
+        async function controlWoparker(action, id) {
+            const button = event.target.closest('button');
+            button.disabled = true;
+            button.innerHTML = '<span class="loading"></span> 處理中...';
+
+            try {
+                const response = await apiCall(`/api/woparker/${action}`, {
+                    id: id
+                });
+
+                addLog('WoParker', action, `閘門 ${id}`, 'success', { response });
+                showMessage(`✅ ${action.toUpperCase()} 成功！`, 'success');
+            } catch (error) {
+                addLog('WoParker', action, `閘門 ${id}`, 'failed', { error: error.message });
+                showMessage(`❌ ${action.toUpperCase()} 失敗: ${error.message}`, 'error');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = action === 'open' ? '🔓 開啟<br><small>閘門 1</small>' : '🔒 關閉<br><small>閘門 1</small>';
+            }
+        }
+
+        async function controlNewParking(action) {
+            const button = event.target.closest('button');
+            button.disabled = true;
+            button.innerHTML = '<span class="loading"></span> 處理中...';
+
+            try {
+                const response = await apiCall(`/api/new-parking/${action}`);
+
+                const gateLabel = action.includes('entrance') ? '入口' : '出口';
+                const actionLabel = action.includes('open') ? '開啟' : '關閉';
+                
+                addLog('新系統', actionLabel, gateLabel, 'success', { response });
+                showMessage(`✅ ${actionLabel} ${gateLabel} 成功！`, 'success');
+            } catch (error) {
+                const gateLabel = action.includes('entrance') ? '入口' : '出口';
+                const actionLabel = action.includes('open') ? '開啟' : '關閉';
+                
+                addLog('新系統', actionLabel, gateLabel, 'failed', { error: error.message });
+                showMessage(`❌ ${actionLabel} ${gateLabel} 失敗: ${error.message}`, 'error');
+            } finally {
+                button.disabled = false;
+                const text = action.includes('open') ? '🔓 開啟' : '🔒 關閉';
+                const gate = action.includes('entrance') ? '入口' : '出口';
+                button.innerHTML = `${text}<br><small>${gate}</small>`;
+            }
+        }
+
+        function showMessage(message, type) {
+            const container = document.querySelector('.logs-section');
+            const messageEl = document.createElement('div');
+            messageEl.className = `${type}-message`;
+            messageEl.textContent = message;
+            messageEl.style.animation = 'slideIn 0.3s ease';
+
+            container.insertBefore(messageEl, container.firstChild);
+
+            setTimeout(() => {
+                messageEl.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => messageEl.remove(), 300);
+            }, 3000);
+        }
+
+        // ==================== 初始化 ====================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLogs();
+            updateStats();
+            updateLastUpdate();
+            document.getElementById('apiEndpoint').value = appState.apiEndpoint;
+            document.getElementById('apiTimeout').value = appState.apiTimeout;
+        });
+    </script>
 </body>
 </html>
