@@ -127,6 +127,30 @@
     <div>
       <div class="section-title">📍 宏碁系統</div>
     </div>
+        <!-- 青年站 -->
+    <div class="card">
+      <h2>📍 青年站</h2>
+      
+      <!-- 入口 -->
+      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
+        <div class="btn-group">
+          <button class="btn btn-open"  onclick="controlGate('open',  545, this)">🟢 開門</button>
+          <button class="btn btn-close" onclick="controlGate('close', 545, this)">🔴 關門</button>
+        </div>
+        <div class="status" id="status-545"></div>
+      </div>
+    
+      <!-- 出口 -->
+      <div>
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
+        <div class="btn-group">
+          <button class="btn btn-open"  onclick="controlGate('open',  546, this)">🟢 開門</button>
+          <button class="btn btn-close" onclick="controlGate('close', 546, this)">🔴 關門</button>
+        </div>
+        <div class="status" id="status-546"></div>
+      </div>
+    </div>
 
     <!-- 太平路站 -->
     <div class="card">
