@@ -1978,27 +1978,21 @@
     /* 公益路目前不能開門 */
 
     "公益路站": {
-
-      system: null,
-
-      gates: [],
-
-      feeOnly: true
-
+    system: null,
+    gates: [],
+    feeOnly: true,
+    externalUrl: "http://122.117.0.168:15000/login"
     },
 
 
     /* 福利路目前不能開門 */
 
     "福利路站": {
-
-      system: null,
-
-      gates: [],
-
-      feeOnly: true
-
-    }
+        system: null,
+        gates: [],
+        feeOnly: true,
+        externalUrl: "http://60.248.223.42:15890/DAS/content"
+        },
 
   };
 
@@ -2496,23 +2490,37 @@
 
 
     if (
-      station.feeOnly ||
-      !station.gates ||
-      station.gates.length === 0
-    ) {
+        station.feeOnly ||
+        !station.gates ||
+        station.gates.length === 0
+        ) {
 
-      container.innerHTML =
-        `
-        <div class="fee-only-info">
-          此停車場目前尚未設定遠端開門。<br>
-          目前僅提供停車費計算。
-        </div>
+        let externalButton = "";
+
+        if (station.externalUrl) {
+            externalButton = `
+            <button
+                type="button"
+                class="station-fee-button"
+                style="margin-top:12px; background:#555;"
+                onclick="openExternalParkingSite('${station.externalUrl}')"
+            >
+                🌐 前往${stationName.replace("站", "")}系統
+            </button>
+            `;
+        }
+
+        container.innerHTML = `
+            <div class="fee-only-info">
+            此停車場目前無法由本頁遠端開門。<br>
+            可使用停車費計算，或前往原控制系統。
+            </div>
+
+            ${externalButton}
         `;
 
-
-      return;
-
-    }
+        return;
+        }
 
 
     station.gates.forEach(
@@ -2579,7 +2587,9 @@
   }
 
 
-
+function openExternalParkingSite(url) {
+  window.open(url, "_blank");
+}
   /* =========================================================
      執行遠端開門
   ========================================================= */
