@@ -1,580 +1,4752 @@
 <!DOCTYPE html>
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%230066cc'/><text y='.9em' font-size='85' font-family='Arial' font-weight='bold' fill='white' x='18'>P</text></svg>">
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <link
+    rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%230066cc'/><text y='.9em' font-size='85' font-family='Arial' font-weight='bold' fill='white' x='18'>P</text></svg>"
+  >
 
   <meta name="apple-mobile-web-app-title" content="停車場控制">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="application-name" content="停車場控制">
   <meta name="theme-color" content="#0066cc">
 
-  <title>停車場遠端控制0522v4.2</title>
+  <title>停車場遠端控制0819v5.3</title>
+
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
       background: #f0f2f5;
+
       min-height: 100vh;
+
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 20px;
+
+      padding:
+        max(18px, env(safe-area-inset-top))
+        16px
+        max(30px, env(safe-area-inset-bottom));
     }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+
+    /* =========================================================
+       標題
+    ========================================================= */
 
     h1 {
-      font-size: 1.5rem;
+      width: 100%;
+      max-width: 400px;
+
+      font-size: 1.45rem;
       color: #333;
-      margin-bottom: 24px;
+
+      margin-top: 4px;
+      margin-bottom: 18px;
+
+      text-align: center;
       letter-spacing: 1px;
     }
 
-    .section-title {
-      font-size: 0.95rem;
-      color: #666;
-      margin-top: 28px;
-      margin-bottom: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      padding-left: 8px;
-    }
 
-    .section-title:first-child {
-      margin-top: 0;
-    }
+    /* =========================================================
+       停車費計算器
+    ========================================================= */
 
-    .cards {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+    .fee-card {
       width: 100%;
-      max-width: 360px;
-    }
+      max-width: 400px;
 
-    .card {
       background: white;
+
       border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      padding: 28px 32px;
+      border: 2px solid #dcecff;
+
+      box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+
+      padding: 22px;
+
+      margin-bottom: 22px;
     }
 
-    .card h2 {
+    .fee-card h2 {
       font-size: 1.2rem;
-      color: #444;
-      margin-bottom: 20px;
+      color: #1565c0;
+
       text-align: center;
-      border-bottom: 2px solid #f0f0f0;
+
+      margin-bottom: 18px;
       padding-bottom: 12px;
+
+      border-bottom: 2px solid #edf4ff;
     }
 
-    .btn-group {
+    .fee-form-group {
+      margin-bottom: 14px;
+    }
+
+    .fee-form-group label {
+      display: block;
+
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #444;
+
+      margin-bottom: 7px;
+    }
+
+    .fee-input,
+    .fee-select {
+      width: 100%;
+      min-height: 52px;
+
+      border: 1px solid #d2d6dc;
+      border-radius: 11px;
+
+      padding: 0 12px;
+
+      font-size: 1rem;
+
+      background: white;
+      color: #333;
+
+      outline: none;
+    }
+
+    .fee-input:focus,
+    .fee-select:focus {
+      border-color: #1976d2;
+
+      box-shadow:
+        0 0 0 3px rgba(25,118,210,0.10);
+    }
+
+
+    /* =========================================================
+       自製時間欄位
+    ========================================================= */
+
+    .time-picker-button {
       display: flex;
-      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+
+      text-align: left;
+
+      cursor: pointer;
+
+      font-weight: 800;
     }
 
-    .btn {
-      flex: 1;
-      padding: 16px 0;
+    .time-picker-button::after {
+      content: "›";
+
+      font-size: 1.4rem;
+      color: #999;
+
+      transform: rotate(90deg);
+    }
+
+
+    /* =========================================================
+       假日
+    ========================================================= */
+
+    .holiday-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      padding: 12px;
+
+      background: #fff8e1;
+
+      border-radius: 10px;
+
+      margin-bottom: 14px;
+
+      font-size: 0.9rem;
+      color: #795548;
+    }
+
+    .holiday-option input {
+      width: 20px;
+      height: 20px;
+    }
+
+    .holiday-option label {
+      font-weight: 700;
+    }
+
+
+    /* =========================================================
+       費率
+    ========================================================= */
+
+    .rate-info {
+      background: #f5f7fa;
+
+      border-radius: 10px;
+
+      padding: 12px 13px;
+
+      font-size: 0.84rem;
+      line-height: 1.7;
+
+      color: #555;
+
+      margin-bottom: 15px;
+    }
+
+
+    /* =========================================================
+       計算按鈕
+    ========================================================= */
+
+    .calculate-btn {
+      width: 100%;
+      min-height: 54px;
+
       border: none;
       border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: bold;
+
+      background: #1976d2;
+      color: white;
+
+      font-size: 1.05rem;
+      font-weight: 800;
+
       cursor: pointer;
-      transition: all 0.2s ease;
-      letter-spacing: 1px;
     }
 
-    .btn-open { background: #4CAF50; color: white; }
-    .btn-open:hover { background: #43a047; transform: scale(1.03); }
-    .btn-open:active { transform: scale(0.97); }
+    .calculate-btn:active {
+      transform: scale(0.98);
+    }
 
-    .btn-close { background: #f44336; color: white; }
-    .btn-close:hover { background: #e53935; transform: scale(1.03); }
-    .btn-close:active { transform: scale(0.97); }
 
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+    /* =========================================================
+       計算結果
+    ========================================================= */
+
+    .fee-result {
+      display: none;
+
+      margin-top: 17px;
+
+      border-radius: 12px;
+
+      background: #f0f8ff;
+
+      border: 1px solid #bbdefb;
+
+      padding: 16px;
+    }
+
+    .fee-result.show {
+      display: block;
+    }
+
+    .result-station {
+      font-size: 0.85rem;
+      color: #607d8b;
+
+      margin-bottom: 10px;
+
+      text-align: center;
+    }
+
+    .duration-result {
+      font-size: 1rem;
+      color: #333;
+
+      font-weight: 700;
+
+      line-height: 1.6;
+    }
+
+    .amount-result {
+      margin-top: 4px;
+
+      font-size: 1.45rem;
+
+      color: #d32f2f;
+
+      font-weight: 900;
+
+      line-height: 1.6;
+    }
+
+    .calculation-time {
+      margin-top: 7px;
+
+      color: #888;
+
+      font-size: 0.78rem;
+    }
+
+    .copy-payment-btn {
+      width: 100%;
+
+      min-height: 52px;
+
+      margin-top: 13px;
+
+      border: none;
+      border-radius: 11px;
+
+      background: #4CAF50;
+      color: white;
+
+      font-size: 1rem;
+      font-weight: 800;
+
+      cursor: pointer;
+    }
+
+    .copy-payment-btn:active {
+      transform: scale(0.98);
+    }
+
+    .copy-status {
+      display: none;
+
+      text-align: center;
+
+      margin-top: 10px;
+
+      font-size: 0.85rem;
+      font-weight: 700;
+
+      color: #2e7d32;
+    }
+
+    .fee-error {
+      display: none;
+
+      margin-top: 12px;
+
+      padding: 10px;
+
+      border-radius: 8px;
+
+      background: #ffebee;
+
+      color: #c62828;
+
+      text-align: center;
+
+      font-size: 0.9rem;
+    }
+
+
+    /* =========================================================
+       首頁
+    ========================================================= */
+
+    .parking-home {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .home-section {
+      margin-bottom: 22px;
+    }
+
+    .home-section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      font-size: 1rem;
+      font-weight: 800;
+
+      color: #444;
+
+      margin-bottom: 11px;
+
+      padding: 0 3px;
+    }
+
+    .home-section-subtitle {
+      font-size: 0.78rem;
+
+      color: #999;
+
+      font-weight: 500;
+    }
+
+
+    /* =========================================================
+       最近使用
+    ========================================================= */
+
+    .recent-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+      gap: 10px;
+    }
+
+    .recent-station-btn {
+      min-height: 64px;
+
+      border: none;
+
+      border-radius: 13px;
+
+      background: white;
+
+      box-shadow:
+        0 3px 12px rgba(0,0,0,0.08);
+
+      padding: 8px;
+
+      font-size: 0.95rem;
+      font-weight: 800;
+
+      color: #333;
+
+      cursor: pointer;
+    }
+
+    .recent-station-btn:active {
+      background: #e3f2fd;
+
+      transform: scale(0.97);
+    }
+
+
+    /* =========================================================
+       搜尋
+    ========================================================= */
+
+    .station-search-wrap {
+      position: relative;
+
+      margin-bottom: 11px;
+    }
+
+    .station-search {
+      width: 100%;
+      min-height: 52px;
+
+      border: 1px solid #d8dce1;
+
+      border-radius: 12px;
+
+      background: white;
+
+      padding:
+        0 42px 0 15px;
+
+      font-size: 1rem;
+
+      outline: none;
+    }
+
+    .station-search:focus {
+      border-color: #1976d2;
+
+      box-shadow:
+        0 0 0 3px rgba(25,118,210,0.08);
+    }
+
+    .search-icon {
+      position: absolute;
+
+      right: 14px;
+      top: 50%;
+
+      transform:
+        translateY(-50%);
+
+      font-size: 1.1rem;
+
+      pointer-events: none;
+    }
+
+
+    /* =========================================================
+       停車場清單
+    ========================================================= */
+
+    .station-list {
+      display: flex;
+      flex-direction: column;
+
+      gap: 8px;
+    }
+
+    .station-list-btn {
+      width: 100%;
+
+      min-height: 58px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      border: none;
+
+      border-radius: 12px;
+
+      background: white;
+
+      box-shadow:
+        0 2px 10px rgba(0,0,0,0.06);
+
+      padding: 0 15px;
+
+      color: #333;
+
+      cursor: pointer;
+    }
+
+    .station-list-btn:active {
+      background: #eaf4ff;
+
+      transform: scale(0.99);
+    }
+
+    .station-list-name {
+      font-size: 1rem;
+      font-weight: 750;
+    }
+
+    .station-list-arrow {
+      font-size: 1.3rem;
+
+      color: #aaa;
+    }
+
+    .station-fee-only {
+      font-size: 0.73rem;
+
+      color: #ef6c00;
+
+      background: #fff3e0;
+
+      padding: 4px 7px;
+
+      border-radius: 20px;
+
+      margin-left: auto;
+      margin-right: 8px;
+    }
+
+    .no-search-result {
+      display: none;
+
+      padding: 24px;
+
+      background: white;
+
+      border-radius: 12px;
+
+      text-align: center;
+
+      color: #999;
+    }
+
+
+    /* =========================================================
+       停車場控制彈窗
+    ========================================================= */
+
+    .station-modal {
+      display: none;
+
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 9999;
+
+      background:
+        rgba(0,0,0,0.48);
+
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .station-modal.show {
+      display: flex;
+    }
+
+    .station-sheet {
+      width: 100%;
+      max-width: 480px;
+
+      max-height: 92dvh;
+
+      overflow-y: auto;
+
+      background: #f5f6f8;
+
+      border-radius:
+        22px 22px 0 0;
+
+      box-shadow:
+        0 -8px 30px rgba(0,0,0,0.25);
+
+      padding:
+        12px
+        16px
+        max(20px, env(safe-area-inset-bottom));
+    }
+
+    .sheet-handle {
+      width: 45px;
+      height: 5px;
+
+      border-radius: 20px;
+
+      background: #ccc;
+
+      margin: 0 auto 12px;
+    }
+
+    .station-sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      margin-bottom: 15px;
+    }
+
+    .station-sheet-title {
+      font-size: 1.35rem;
+
+      font-weight: 900;
+
+      color: #222;
+    }
+
+    .station-sheet-close {
+      width: 44px;
+      height: 44px;
+
+      border: none;
+
+      border-radius: 50%;
+
+      background: #e3e5e8;
+
+      color: #444;
+
+      font-size: 1.4rem;
+
+      cursor: pointer;
+    }
+
+    .station-fee-button {
+      width: 100%;
+
+      min-height: 56px;
+
+      border: none;
+
+      border-radius: 12px;
+
+      background: #1565c0;
+
+      color: white;
+
+      font-size: 1.05rem;
+      font-weight: 900;
+
+      margin-bottom: 13px;
+
+      cursor: pointer;
+    }
+
+    .station-fee-button:active {
+      transform: scale(0.98);
+    }
+
+    .gate-card {
+      background: white;
+
+      border-radius: 15px;
+
+      padding: 17px;
+
+      margin-bottom: 12px;
+
+      box-shadow:
+        0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .gate-card-title {
+      font-size: 1rem;
+
+      font-weight: 900;
+
+      color: #444;
+
+      margin-bottom: 12px;
+    }
+
+    .gate-button-group {
+      display: flex;
+
+      gap: 10px;
+    }
+
+    .gate-btn {
+      flex: 1;
+
+      min-height: 64px;
+
+      border: none;
+
+      border-radius: 13px;
+
+      font-size: 1.08rem;
+      font-weight: 900;
+
+      cursor: pointer;
+    }
+
+    .gate-btn-open {
+      background: #43a047;
+
+      color: white;
+    }
+
+    .gate-btn-close {
+      background: #e53935;
+
+      color: white;
+    }
+
+    .gate-btn:active {
+      transform: scale(0.96);
+    }
+
+    .gate-btn:disabled {
+      opacity: 0.55;
+
       transform: none;
     }
 
-    .status {
-      margin-top: 14px;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 0.9rem;
+    .gate-status {
+      display: none;
+
+      margin-top: 11px;
+
+      padding: 10px;
+
+      border-radius: 9px;
+
       text-align: center;
+
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .gate-status.loading {
+      display: block;
+
+      background: #e3f2fd;
+
+      color: #1565c0;
+    }
+
+    .gate-status.success {
+      display: block;
+
+      background: #e8f5e9;
+
+      color: #2e7d32;
+    }
+
+    .gate-status.error {
+      display: block;
+
+      background: #ffebee;
+
+      color: #c62828;
+    }
+
+    .fee-only-info {
+      padding: 18px;
+
+      border-radius: 13px;
+
+      background: #fff3e0;
+
+      color: #e65100;
+
+      line-height: 1.6;
+
+      font-weight: 700;
+
+      text-align: center;
+    }
+
+    .modal-bottom-close {
+      width: 100%;
+
+      min-height: 50px;
+
+      border: none;
+
+      border-radius: 12px;
+
+      background: #dfe2e6;
+
+      color: #444;
+
+      font-size: 1rem;
+      font-weight: 800;
+
+      margin-top: 3px;
+
+      cursor: pointer;
+    }
+
+
+    /* =========================================================
+       自製時間選擇器
+    ========================================================= */
+
+    .custom-time-modal {
+      display: none;
+
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 20000;
+
+      background:
+        rgba(0,0,0,0.50);
+
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .custom-time-modal.show {
+      display: flex;
+    }
+
+    .custom-time-sheet {
+      width: 100%;
+      max-width: 480px;
+
+      background: white;
+
+      border-radius:
+        22px 22px 0 0;
+
+      padding:
+        14px
+        18px
+        max(22px, env(safe-area-inset-bottom));
+
+      box-shadow:
+        0 -8px 30px rgba(0,0,0,0.25);
+    }
+
+    .time-sheet-handle {
+      width: 45px;
+      height: 5px;
+
+      background: #ccc;
+
+      border-radius: 10px;
+
+      margin: 0 auto 13px;
+    }
+
+    .time-picker-title {
+      text-align: center;
+
+      font-size: 1.08rem;
+      font-weight: 800;
+
+      color: #333;
+
+      margin-bottom: 10px;
+    }
+
+    .time-picker-preview {
+      text-align: center;
+
+      font-size: 2.15rem;
+
+      font-weight: 900;
+
+      color: #1565c0;
+
+      margin-bottom: 16px;
+    }
+
+    .time-picker-columns {
+      display: flex;
+
+      align-items: center;
+
+      gap: 9px;
+    }
+
+    .time-column {
+      flex: 1;
+
+      min-width: 0;
+    }
+
+    .time-column-title {
+      text-align: center;
+
+      font-size: 0.83rem;
+
+      color: #888;
+
+      margin-bottom: 7px;
+
+      font-weight: 700;
+    }
+
+    .time-colon {
+      font-size: 1.9rem;
+
+      font-weight: 900;
+
+      color: #777;
+
+      padding-top: 25px;
+    }
+
+    .time-scroll {
+      height: 240px;
+
+      overflow-y: auto;
+
+      border: 1px solid #ddd;
+
+      border-radius: 13px;
+
+      background: #f6f7f9;
+
+      padding: 6px;
+
+      scrollbar-width: none;
+
+      overscroll-behavior: contain;
+    }
+
+    .time-scroll::-webkit-scrollbar {
       display: none;
     }
 
-    .status.success { background: #e8f5e9; color: #2e7d32; display: block; }
-    .status.error   { background: #ffebee; color: #c62828; display: block; }
-    .status.loading { background: #e3f2fd; color: #1565c0; display: block; }
+    .time-option {
+      width: 100%;
+
+      height: 48px;
+
+      border: none;
+
+      border-radius: 9px;
+
+      background: transparent;
+
+      font-size: 1.12rem;
+
+      color: #444;
+
+      font-weight: 750;
+
+      cursor: pointer;
+    }
+
+    .time-option.selected {
+      background: #1976d2;
+
+      color: white;
+    }
+
+    .time-option:active {
+      transform: scale(0.96);
+    }
+
+    .time-picker-actions {
+      display: flex;
+
+      gap: 10px;
+
+      margin-top: 17px;
+    }
+
+    .time-cancel-btn,
+    .time-confirm-btn {
+      flex: 1;
+
+      min-height: 54px;
+
+      border: none;
+
+      border-radius: 12px;
+
+      font-size: 1rem;
+
+      font-weight: 800;
+
+      cursor: pointer;
+    }
+
+    .time-cancel-btn {
+      background: #e5e7ea;
+
+      color: #444;
+    }
+
+    .time-confirm-btn {
+      background: #1976d2;
+
+      color: white;
+    }
+
+    .time-confirm-btn:active,
+    .time-cancel-btn:active {
+      transform: scale(0.97);
+    }
+
+
+    @media (min-width: 600px) {
+
+      .station-modal,
+      .custom-time-modal {
+        align-items: center;
+
+        padding: 20px;
+      }
+
+      .station-sheet,
+      .custom-time-sheet {
+        border-radius: 22px;
+      }
+    }
+
   </style>
 </head>
+
+
 <body>
 
-  <h1>🅿️ 停車場遠端控制v4.2</h1>
 
-  <div class="cards">
+  <h1>
+    🅿️ 停車場遠端控制 v5.3
+  </h1>
 
-    <!-- ===== 舊系統 ===== -->
-    <div>
-      <div class="section-title">📍 宏碁系統</div>
-    </div>
-        <!-- 青年站 -->
-    <div class="card">
-      <h2>📍 青年站</h2>
-      
-      <!-- 入口 -->
-      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="controlGate('open',  545, this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="controlGate('close', 545, this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-545"></div>
-      </div>
-    
-      <!-- 出口 -->
-      <div>
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="controlGate('open',  546, this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="controlGate('close', 546, this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-546"></div>
-      </div>
-    </div>
 
-    <!-- 太平路站 -->
-    <div class="card">
-      <h2>📍 太平路站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  54, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 54, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-54"></div>
-    </div>
+  <!-- =========================================================
+       停車費快速計算
+  ========================================================== -->
 
-    <!-- 三厝街站 -->
-    <div class="card">
-      <h2>📍 三厝街站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  71, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 71, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-71"></div>
-    </div>
+  <div
+    class="fee-card"
+    id="feeCalculator"
+  >
 
-    <!-- 東英路站 -->
-    <div class="card">
-      <h2>📍 東英路站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  157, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 157, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-157"></div>
-    </div>
+    <h2>
+      💰 停車費快速計算
+    </h2>
 
-    <!-- 中華路站 -->
-    <div class="card">
-      <h2>📍 中華路站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  168, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 168, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-168"></div>
-    </div>
 
-    <div class="card">
-      <h2>📍 永春東七路站</h2>
-      
-      <!-- 入口 -->
-      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="controlGate('open',  228, this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="controlGate('close', 228, this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-228"></div>
-      </div>
-    
-      <!-- 出口 -->
-      <div>
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="controlGate('open',  229, this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="controlGate('close', 229, this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-229"></div>
-      </div>
+    <div class="fee-form-group">
+
+      <label for="parkingLot">
+        📍 停車場
+      </label>
+
+      <select
+        id="parkingLot"
+        class="fee-select"
+        onchange="updateRateInfo()"
+      >
+
+        <option value="青年站">
+          青年站
+        </option>
+
+        <option value="太平路站">
+          太平路站
+        </option>
+
+        <option value="三厝街站">
+          三厝街站
+        </option>
+
+        <option value="東英路站">
+          東英路站
+        </option>
+
+        <option value="中華路站">
+          中華路站
+        </option>
+
+        <option value="永春東七路站">
+          永春東七路站
+        </option>
+
+        <option value="豐樂公園站">
+          豐樂公園站
+        </option>
+
+        <option value="民生北路 A站">
+          民生北路 A站
+        </option>
+
+        <option value="民生北路 B站">
+          民生北路 B站
+        </option>
+
+        <option value="益文一街站">
+          益文一街站
+        </option>
+
+        <option value="信義街站">
+          信義街站
+        </option>
+
+        <option value="公益路站">
+          公益路站
+        </option>
+
+        <option value="福利路站">
+          福利路站
+        </option>
+
+      </select>
+
     </div>
 
-    <!-- 豐樂公園站 -->
-    <div class="card">
-      <h2>📍 豐樂公園站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="controlGate('open',  269, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="controlGate('close', 269, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-269"></div>
+
+    <div class="fee-form-group">
+
+      <label for="entryDate">
+        📅 進場日期
+      </label>
+
+      <input
+        type="date"
+        id="entryDate"
+        class="fee-input"
+      >
+
     </div>
 
-    <!-- ===== woparker 新系統 ===== -->
-    <div>
-      <div class="section-title">woparker 系統</div>
+
+    <!-- 自製時間選擇 -->
+
+    <div class="fee-form-group">
+
+      <label>
+        🕐 進場時間
+      </label>
+
+      <button
+        type="button"
+        id="entryTimeButton"
+        class="fee-input time-picker-button"
+        onclick="openTimePicker()"
+      >
+        <span id="entryTimeDisplay">
+          00:00
+        </span>
+      </button>
+
+      <input
+        type="hidden"
+        id="entryTime"
+        value="00:00"
+      >
+
     </div>
 
-    <!-- 民生北路 A站 -->
-    <div class="card">
-      <h2>📍 民生北路 A站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="woparkerControl('open', 1729, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="woparkerControl('close', 1729, this)">🔴 關門</button>
-      </div>
-      <div class="status" id="status-woparker-1729"></div>
+
+    <div class="holiday-option">
+
+      <input
+        type="checkbox"
+        id="forceHoliday"
+        onchange="updateRateInfo()"
+      >
+
+      <label for="forceHoliday">
+        今天是國定假日
+      </label>
+
     </div>
 
-    <!-- 民生北路 B站 -->
-    <div class="card">
-      <h2>📍 民生北路 B站</h2>
-      <div class="btn-group">
-        <button class="btn btn-open"  onclick="woparkerControl('open', 1731, this)">🟢 開門</button>
-        <button class="btn btn-close" onclick="woparkerControl('close', 1731, this)">🔴 關門</button>
+
+    <div
+      class="rate-info"
+      id="rateInfo"
+    ></div>
+
+
+    <button
+      class="calculate-btn"
+      onclick="calculateCurrentFee()"
+    >
+      💰 計算目前停車費
+    </button>
+
+
+    <div
+      class="fee-error"
+      id="feeError"
+    ></div>
+
+
+    <div
+      class="fee-result"
+      id="feeResult"
+    >
+
+      <div
+        class="result-station"
+        id="resultStation"
+      ></div>
+
+
+      <div
+        class="duration-result"
+        id="durationResult"
+      >
+        您的停車時間為：
       </div>
-      <div class="status" id="status-woparker-1731"></div>
+
+
+      <div
+        class="amount-result"
+        id="amountResult"
+      >
+        收款：
+      </div>
+
+
+      <div
+        class="calculation-time"
+        id="calculationTime"
+      ></div>
+
+
+      <button
+        class="copy-payment-btn"
+        onclick="copyPaymentMessage()"
+      >
+        📋 複製收款資訊
+      </button>
+
+
+      <div
+        class="copy-status"
+        id="copyStatus"
+      >
+        ✅ 已複製，可以直接貼給客人
+      </div>
+
     </div>
-
-    <!-- 益文一街站 -->
-    <div class="card">
-      <h2>📍 益文一街站</h2>
-      
-      <!-- 入口 -->
-      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="woparkerControl('open', 1808, this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="woparkerControl('close', 1808, this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-woparker-1808"></div>
-      </div>
-    
-      <!-- 出口 -->
-      <div>
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="woparkerControl('open', 1807, this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="woparkerControl('close', 1807, this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-woparker-1807"></div>
-      </div>
-    </div>
-
-    <!-- ===== Fortune88 系統 ===== -->
-    <div>
-      <div class="section-title">🅿️ Fortune88 系統</div>
-    </div>
-
-    <!-- 信義街站 -->
-    <div class="card">
-      <h2>📍 信義街站</h2>
-      
-      <!-- 入口 -->
-      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="fortune88Control('open', 'entrance', this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="fortune88Control('close', 'entrance', this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-fortune88-entrance"></div>
-      </div>
-    
-      <!-- 出口 -->
-      <div>
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="fortune88Control('open', 'exit', this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="fortune88Control('close', 'exit', this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-fortune88-exit"></div>
-      </div>
-    </div>
-
-    <!-- ===== 公益路系統 ===== 
-    <div>
-      <div class="section-title">🏢 公益路系統</div>
-    </div>-->
-
-    <!-- 公益路站 
-    <div class="card">
-      <h2>📍 公益路站</h2>
-      
-      入口 
-      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📤 入口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="gongyiControl('open-entrance', this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="gongyiControl('close-entrance', this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-gongyi-entrance"></div>
-      </div>
-
-      出口 
-      <div>
-        <div style="font-size: 0.9rem; color: #666; margin-bottom: 12px; font-weight: 600;">📥 出口</div>
-        <div class="btn-group">
-          <button class="btn btn-open"  onclick="gongyiControl('open-exit', this)">🟢 開門</button>
-          <button class="btn btn-close" onclick="gongyiControl('close-exit', this)">🔴 關門</button>
-        </div>
-        <div class="status" id="status-gongyi-exit"></div>
-      </div>
-    </div>-->
 
   </div>
 
-  <script>
-    const WORKER_URL = "https://parking-opener.abc920426920426.workers.dev";
 
-    // 判斷是否為本地檔案
-    const isLocalFile = window.location.protocol === 'file:';
+  <!-- =========================================================
+       手機停車場首頁
+  ========================================================== -->
 
-    // ===== 舊系統控制 (透過 Worker 代理 - Token 存在 Worker 端) =====
-    async function controlGate(action, devId, btnEl) {
-      const statusEl = document.getElementById(`status-${devId}`);
-      const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
+  <div class="parking-home">
 
-      allBtns.forEach(b => b.disabled = true);
-      statusEl.className = 'status loading';
-      statusEl.textContent = action === 'open' ? '⏳ 開門中...' : '⏳ 關門中...';
 
-      try {
-        const res = await fetch(`${WORKER_URL}/api/paku/gate?action=${action}&dev_id=${devId}`, {
-          method: 'GET'
-        });
+    <!-- 最近使用 -->
 
-        const data = await res.json();
+    <div class="home-section">
 
-        if (res.ok) {
-          statusEl.className = 'status success';
-          statusEl.textContent = action === 'open' ? '✅ 開門成功！' : '✅ 關門成功！';
-        } else {
-          throw new Error(data.error || `HTTP ${res.status}`);
-        }
-      } catch (err) {
-        statusEl.className = 'status error';
-        statusEl.textContent = `❌ 失敗：${err.message}`;
-      } finally {
-        setTimeout(() => {
-          allBtns.forEach(b => b.disabled = false);
-        }, 2000);
-      }
+      <div class="home-section-title">
+
+        <span>
+          🕘 最近使用
+        </span>
+
+        <span class="home-section-subtitle">
+          自動記錄
+        </span>
+
+      </div>
+
+
+      <div
+        class="recent-grid"
+        id="recentStations"
+      ></div>
+
+    </div>
+
+
+    <!-- 全部停車場 -->
+
+    <div class="home-section">
+
+      <div class="home-section-title">
+
+        <span>
+          📍 全部停車場
+        </span>
+
+      </div>
+
+
+      <div class="station-search-wrap">
+
+        <input
+          type="search"
+          id="stationSearch"
+          class="station-search"
+          placeholder="搜尋停車場..."
+          oninput="filterStations()"
+        >
+
+        <div class="search-icon">
+          🔍
+        </div>
+
+      </div>
+
+
+      <div
+        class="station-list"
+        id="stationList"
+      ></div>
+
+
+      <div
+        class="no-search-result"
+        id="noSearchResult"
+      >
+        找不到符合的停車場
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       停車場控制彈窗
+  ========================================================== -->
+
+  <div
+    class="station-modal"
+    id="stationModal"
+    onclick="stationModalBackgroundClick(event)"
+  >
+
+    <div class="station-sheet">
+
+      <div class="sheet-handle"></div>
+
+
+      <div class="station-sheet-header">
+
+        <div
+          class="station-sheet-title"
+          id="stationModalTitle"
+        >
+          📍 停車場
+        </div>
+
+
+        <button
+          class="station-sheet-close"
+          onclick="closeStationModal()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <button
+        class="station-fee-button"
+        id="modalFeeButton"
+      >
+        💰 計算這個停車場費用
+      </button>
+
+
+      <div
+        id="gateControlContainer"
+      ></div>
+
+
+      <button
+        class="modal-bottom-close"
+        onclick="closeStationModal()"
+      >
+        關閉
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       自製時間選擇器
+  ========================================================== -->
+
+  <div
+    class="custom-time-modal"
+    id="customTimeModal"
+    onclick="timePickerBackgroundClick(event)"
+  >
+
+    <div class="custom-time-sheet">
+
+      <div class="time-sheet-handle"></div>
+
+
+      <div class="time-picker-title">
+        🕐 選擇進場時間
+      </div>
+
+
+      <div class="time-picker-preview">
+
+        <span id="timePreviewHour">
+          00
+        </span>
+
+        :
+
+        <span id="timePreviewMinute">
+          00
+        </span>
+
+      </div>
+
+
+      <div class="time-picker-columns">
+
+
+        <!-- 小時 -->
+
+        <div class="time-column">
+
+          <div class="time-column-title">
+            小時
+          </div>
+
+          <div
+            class="time-scroll"
+            id="hourScroll"
+          ></div>
+
+        </div>
+
+
+        <div class="time-colon">
+          :
+        </div>
+
+
+        <!-- 分鐘 -->
+
+        <div class="time-column">
+
+          <div class="time-column-title">
+            分鐘
+          </div>
+
+          <div
+            class="time-scroll"
+            id="minuteScroll"
+          ></div>
+
+        </div>
+
+      </div>
+
+
+      <div class="time-picker-actions">
+
+        <button
+          type="button"
+          class="time-cancel-btn"
+          onclick="closeTimePicker()"
+        >
+          取消
+        </button>
+
+
+        <button
+          type="button"
+          class="time-confirm-btn"
+          onclick="confirmTimePicker()"
+        >
+          確定
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+<script>
+
+
+  const WORKER_URL =
+    "https://parking-opener.abc920426920426.workers.dev";
+
+
+  const isLocalFile =
+    window.location.protocol === "file:";
+
+
+
+  /* =========================================================
+     停車場費率
+  ========================================================= */
+
+  const PARKING_RATES = {
+
+    "青年站": {
+
+      weekdayRate: 10,
+
+      holidayRate: 10,
+
+      weekdayMax: 90,
+
+      holidayMax: 90,
+
+      firstHourMinimum: false
+
+    },
+
+
+    "太平路站": {
+
+      weekdayRate: 30,
+
+      holidayRate: 40,
+
+      weekdayMax: 250,
+
+      holidayMax: 250,
+
+      firstHourMinimum: true
+
+    },
+
+
+    "三厝街站": {
+
+      weekdayRate: 30,
+
+      holidayRate: 40,
+
+      weekdayMax: 250,
+
+      holidayMax: 250,
+
+      firstHourMinimum: true
+
+    },
+
+
+    "東英路站": {
+
+      weekdayRate: 30,
+
+      holidayRate: 40,
+
+      weekdayMax: 150,
+
+      holidayMax: 300,
+
+      firstHourMinimum: true
+
+    },
+
+
+    "中華路站": {
+
+      weekdayRate: 30,
+
+      holidayRate: 40,
+
+      weekdayMax: 280,
+
+      holidayMax: null,
+
+      firstHourMinimum: false
+
+    },
+
+
+    "永春東七路站": {
+
+      weekdayRate: 30,
+
+      holidayRate: 40,
+
+      weekdayMax: 250,
+
+      holidayMax: null,
+
+      firstHourMinimum: true
+
+    },
+
+
+    "豐樂公園站": {
+
+      weekdayRate: 15,
+
+      holidayRate: 20,
+
+      weekdayMax: 120,
+
+      holidayMax: 160,
+
+      firstHourMinimum: true
+
+    },
+
+
+    "民生北路 A站": {
+
+      weekdayRate: 20,
+
+      holidayRate: 30,
+
+      weekdayMax: 250,
+
+      holidayMax: 250,
+
+      firstHourMinimum: true
+
+    },
+
+
+    "民生北路 B站": {
+
+      weekdayRate: 20,
+
+      holidayRate: 30,
+
+      weekdayMax: 250,
+
+      holidayMax: 250,
+
+      firstHourMinimum: true
+
+    },
+
+
+    "益文一街站": {
+
+      weekdayRate: 30,
+
+      holidayRate: 30,
+
+      weekdayMax: 120,
+
+      holidayMax: 120,
+
+      firstHourMinimum: false
+
+    },
+
+
+    "信義街站": {
+
+      weekdayRate: 30,
+
+      holidayRate: 40,
+
+      weekdayMax: 200,
+
+      holidayMax: 300,
+
+      firstHourMinimum: false
+
+    },
+
+
+    "公益路站": {
+
+      weekdayRate: 30,
+
+      holidayRate: 40,
+
+      weekdayMax: 180,
+
+      holidayMax: 180,
+
+      firstHourMinimum: false
+
+    },
+
+
+    "福利路站": {
+
+      weekdayRate: 10,
+
+      holidayRate: 10,
+
+      weekdayMax: 90,
+
+      holidayMax: 90,
+
+      firstHourMinimum: false
+
     }
 
-    // ===== woparker 新系統控制 (透過 Worker 代理) =====
-    async function woparkerControl(action, id, btnEl) {
-      const statusEl = document.getElementById(`status-woparker-${id}`);
-      const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
+  };
 
-      allBtns.forEach(b => b.disabled = true);
-      statusEl.className = 'status loading';
-      statusEl.textContent = action === 'open' ? '⏳ 開門中...' : '⏳ 關門中...';
 
-      try {
-        const res = await fetch(`${WORKER_URL}/api/woparker/${action}?id=${id}`, {
-          method: 'GET'
-        });
 
-        const data = await res.json();
-        console.log(`[woparker id=${id}] 回應:`, data);
+  /* =========================================================
+     停車場遠端控制設定
+  ========================================================= */
 
-        if (res.ok) {
-          statusEl.className = 'status success';
-          statusEl.textContent = action === 'open' ? '✅ 開門成功！' : '✅ 關門成功！';
-        } else {
-          throw new Error(JSON.stringify(data));
+  const STATIONS = {
+
+
+    "青年站": {
+
+      system: "paku",
+
+      gates: [
+
+        {
+          label: "📤 入口",
+          id: 545
+        },
+
+        {
+          label: "📥 出口",
+          id: 546
         }
-      } catch (err) {
-        console.error(`[woparker id=${id}] 錯誤:`, err);
-        statusEl.className = 'status error';
-        statusEl.textContent = `❌ 失敗：${err.message.substring(0, 40)}`;
-      } finally {
-        setTimeout(() => {
-          allBtns.forEach(b => b.disabled = false);
-        }, 2000);
-      }
+
+      ]
+
+    },
+
+
+    "太平路站": {
+
+      system: "paku",
+
+      gates: [
+
+        {
+          label: "🚧 柵欄",
+          id: 54
+        }
+
+      ]
+
+    },
+
+
+    "三厝街站": {
+
+      system: "paku",
+
+      gates: [
+
+        {
+          label: "🚧 柵欄",
+          id: 71
+        }
+
+      ]
+
+    },
+
+
+    "東英路站": {
+
+      system: "paku",
+
+      gates: [
+
+        {
+          label: "🚧 柵欄",
+          id: 157
+        }
+
+      ]
+
+    },
+
+
+    "中華路站": {
+
+      system: "paku",
+
+      gates: [
+
+        {
+          label: "🚧 柵欄",
+          id: 168
+        }
+
+      ]
+
+    },
+
+
+    "永春東七路站": {
+
+      system: "paku",
+
+      gates: [
+
+        {
+          label: "📤 入口",
+          id: 228
+        },
+
+        {
+          label: "📥 出口",
+          id: 229
+        }
+
+      ]
+
+    },
+
+
+    "豐樂公園站": {
+
+      system: "paku",
+
+      gates: [
+
+        {
+          label: "🚧 柵欄",
+          id: 269
+        }
+
+      ]
+
+    },
+
+
+    "民生北路 A站": {
+
+      system: "woparker",
+
+      gates: [
+
+        {
+          label: "🚧 柵欄",
+          id: 1729
+        }
+
+      ]
+
+    },
+
+
+    "民生北路 B站": {
+
+      system: "woparker",
+
+      gates: [
+
+        {
+          label: "🚧 柵欄",
+          id: 1731
+        }
+
+      ]
+
+    },
+
+
+    "益文一街站": {
+
+      system: "woparker",
+
+      gates: [
+
+        {
+          label: "📤 入口",
+          id: 1808
+        },
+
+        {
+          label: "📥 出口",
+          id: 1807
+        }
+
+      ]
+
+    },
+
+
+    "信義街站": {
+
+      system: "fortune88",
+
+      gates: [
+
+        {
+          label: "📤 入口",
+          gate: "entrance"
+        },
+
+        {
+          label: "📥 出口",
+          gate: "exit"
+        }
+
+      ]
+
+    },
+
+
+    /* 公益路目前不能開門 */
+
+    "公益路站": {
+
+      system: null,
+
+      gates: [],
+
+      feeOnly: true
+
+    },
+
+
+    /* 福利路目前不能開門 */
+
+    "福利路站": {
+
+      system: null,
+
+      gates: [],
+
+      feeOnly: true
+
     }
 
-    // ===== Fortune88 系統控制 =====
-    async function fortune88Control(action, gate, btnEl) {
-      const statusEl = document.getElementById(`status-fortune88-${gate}`);
-      const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
+  };
 
-      allBtns.forEach(b => b.disabled = true);
-      statusEl.className = 'status loading';
-      statusEl.textContent = action === 'open' ? '⏳ 開門中...' : '⏳ 關門中...';
 
-      try {
-        const res = await fetch(`${WORKER_URL}/api/fortune88/${action}/${gate}`, {
-          method: 'GET'
-        });
 
-        const data = await res.json();
-        console.log(`[fortune88 ${gate}] 回應:`, data);
+  const STATION_ORDER = [
 
-        if (res.ok) {
-          statusEl.className = 'status success';
-          statusEl.textContent = action === 'open' ? '✅ 開門成功！' : '✅ 關門成功！';
-        } else {
-          throw new Error(JSON.stringify(data));
-        }
-      } catch (err) {
-        console.error(`[fortune88 ${gate}] 錯誤:`, err);
-        statusEl.className = 'status error';
-        statusEl.textContent = `❌ 失敗：${err.message.substring(0, 40)}`;
-      } finally {
-        setTimeout(() => {
-          allBtns.forEach(b => b.disabled = false);
-        }, 2000);
+    "青年站",
+
+    "太平路站",
+
+    "三厝街站",
+
+    "東英路站",
+
+    "中華路站",
+
+    "永春東七路站",
+
+    "豐樂公園站",
+
+    "民生北路 A站",
+
+    "民生北路 B站",
+
+    "益文一街站",
+
+    "信義街站",
+
+    "公益路站",
+
+    "福利路站"
+
+  ];
+
+
+
+  let currentStationName =
+    null;
+
+
+  let lastCalculation =
+    null;
+
+
+
+  /* =========================================================
+     最近使用
+  ========================================================= */
+
+  const RECENT_STORAGE_KEY =
+    "parking_recent_stations_v1";
+
+
+  const DEFAULT_RECENT = [
+
+    "青年站",
+
+    "東英路站",
+
+    "信義街站",
+
+    "永春東七路站"
+
+  ];
+
+
+
+  function getRecentStations() {
+
+    try {
+
+      const saved =
+        JSON.parse(
+          localStorage.getItem(
+            RECENT_STORAGE_KEY
+          )
+        );
+
+
+      if (
+        Array.isArray(saved) &&
+        saved.length > 0
+      ) {
+
+        return saved
+          .filter(
+            name =>
+              STATIONS[name]
+          )
+          .slice(
+            0,
+            4
+          );
+
       }
+
+    } catch (err) {
+
+      console.warn(
+        "最近使用讀取失敗",
+        err
+      );
+
     }
 
-    // ===== 公益路系統控制 =====
-    async function gongyiControl(action, btnEl) {
-      let gateType = '';
-      let statusId = '';
 
-      if (action === 'open-entrance') {
-        gateType = '入口';
-        statusId = 'status-gongyi-entrance';
-      } else if (action === 'close-entrance') {
-        gateType = '入口';
-        statusId = 'status-gongyi-entrance';
-      } else if (action === 'open-exit') {
-        gateType = '出口';
-        statusId = 'status-gongyi-exit';
-      } else if (action === 'close-exit') {
-        gateType = '出口';
-        statusId = 'status-gongyi-exit';
-      }
+    return [
+      ...DEFAULT_RECENT
+    ];
 
-      const statusEl = document.getElementById(statusId);
-      const allBtns = btnEl.closest('.btn-group').querySelectorAll('.btn');
+  }
 
-      allBtns.forEach(b => b.disabled = true);
-      statusEl.className = 'status loading';
-      statusEl.textContent = action.includes('open') ? '⏳ 開門中...' : '⏳ 關門中...';
 
-      try {
-        const res = await fetch(`${WORKER_URL}/api/gongyi/${action}`, {
-          method: 'GET'
-        });
 
-        const data = await res.json();
-        console.log(`[公益路 ${gateType}] 回應:`, data);
+  function saveRecentStation(
+    stationName
+  ) {
 
-        if (res.ok && data.success) {
-          statusEl.className = 'status success';
-          statusEl.textContent = action.includes('open') ? '✅ 開門成功！' : '✅ 關門成功！';
-        } else {
-          throw new Error(data.error || `HTTP ${res.status}`);
-        }
-      } catch (err) {
-        console.error(`[公益路 ${gateType}] 錯誤:`, err.message);
-        statusEl.className = 'status error';
-        const shortMsg = err.message.substring(0, 50);
-        statusEl.textContent = `❌ 失敗：${shortMsg}`;
-      } finally {
-        setTimeout(() => {
-          allBtns.forEach(b => b.disabled = false);
-        }, 2000);
-      }
+    let recent =
+      getRecentStations();
+
+
+    recent =
+      recent.filter(
+        name =>
+          name !== stationName
+      );
+
+
+    recent.unshift(
+      stationName
+    );
+
+
+    recent =
+      recent.slice(
+        0,
+        4
+      );
+
+
+    try {
+
+      localStorage.setItem(
+        RECENT_STORAGE_KEY,
+        JSON.stringify(
+          recent
+        )
+      );
+
+    } catch (err) {
+
+      console.warn(
+        "最近使用儲存失敗",
+        err
+      );
+
     }
 
-    // ===== 版本更新檢查 (僅在網路環境運作) =====
-    async function checkVersionUpdate() {
-      // 本地檔案 (file://) 無法自我 fetch，跳過檢查
-      if (isLocalFile) {
-        console.log('📌 本地檔案模式，跳過版本檢查');
-        return false;
+
+    renderRecentStations();
+
+  }
+
+
+
+  function renderRecentStations() {
+
+    const container =
+      document.getElementById(
+        "recentStations"
+      );
+
+
+    container.innerHTML =
+      "";
+
+
+    const recent =
+      getRecentStations();
+
+
+    recent.forEach(
+      stationName => {
+
+        const button =
+          document.createElement(
+            "button"
+          );
+
+
+        button.type =
+          "button";
+
+
+        button.className =
+          "recent-station-btn";
+
+
+        button.textContent =
+          `📍 ${stationName}`;
+
+
+        button.onclick =
+          () =>
+            openStationModal(
+              stationName
+            );
+
+
+        container.appendChild(
+          button
+        );
+
+      }
+    );
+
+  }
+
+
+
+  /* =========================================================
+     停車場清單
+  ========================================================= */
+
+  function renderStationList(
+    keyword = ""
+  ) {
+
+    const container =
+      document.getElementById(
+        "stationList"
+      );
+
+
+    const noResult =
+      document.getElementById(
+        "noSearchResult"
+      );
+
+
+    container.innerHTML =
+      "";
+
+
+    const search =
+      keyword
+        .trim()
+        .toLowerCase();
+
+
+    const filtered =
+      STATION_ORDER.filter(
+        stationName =>
+          stationName
+            .toLowerCase()
+            .includes(
+              search
+            )
+      );
+
+
+    if (
+      filtered.length === 0
+    ) {
+
+      noResult.style.display =
+        "block";
+
+
+      return;
+
+    }
+
+
+    noResult.style.display =
+      "none";
+
+
+    filtered.forEach(
+      stationName => {
+
+        const station =
+          STATIONS[
+            stationName
+          ];
+
+
+        const button =
+          document.createElement(
+            "button"
+          );
+
+
+        button.type =
+          "button";
+
+
+        button.className =
+          "station-list-btn";
+
+
+        let feeOnlyHtml =
+          "";
+
+
+        if (
+          station.feeOnly
+        ) {
+
+          feeOnlyHtml =
+            `
+            <span class="station-fee-only">
+              只算費用
+            </span>
+            `;
+
+        }
+
+
+        button.innerHTML =
+          `
+          <span class="station-list-name">
+            📍 ${stationName}
+          </span>
+
+          ${feeOnlyHtml}
+
+          <span class="station-list-arrow">
+            ›
+          </span>
+          `;
+
+
+        button.onclick =
+          () =>
+            openStationModal(
+              stationName
+            );
+
+
+        container.appendChild(
+          button
+        );
+
+      }
+    );
+
+  }
+
+
+
+  function filterStations() {
+
+    const keyword =
+      document.getElementById(
+        "stationSearch"
+      ).value;
+
+
+    renderStationList(
+      keyword
+    );
+
+  }
+
+
+
+  /* =========================================================
+     開啟停車場控制
+  ========================================================= */
+
+  function openStationModal(
+    stationName
+  ) {
+
+    const station =
+      STATIONS[
+        stationName
+      ];
+
+
+    if (!station) {
+
+      return;
+
+    }
+
+
+    currentStationName =
+      stationName;
+
+
+    saveRecentStation(
+      stationName
+    );
+
+
+    document.getElementById(
+      "stationModalTitle"
+    ).textContent =
+      `📍 ${stationName}`;
+
+
+    const feeButton =
+      document.getElementById(
+        "modalFeeButton"
+      );
+
+
+    feeButton.onclick =
+      () =>
+        openFeeFromStation(
+          stationName
+        );
+
+
+    renderGateControls(
+      stationName
+    );
+
+
+    document.getElementById(
+      "stationModal"
+    ).classList.add(
+      "show"
+    );
+
+
+    document.body.classList.add(
+      "modal-open"
+    );
+
+  }
+
+
+
+  function closeStationModal() {
+
+    document.getElementById(
+      "stationModal"
+    ).classList.remove(
+      "show"
+    );
+
+
+    document.body.classList.remove(
+      "modal-open"
+    );
+
+  }
+
+
+
+  function stationModalBackgroundClick(
+    event
+  ) {
+
+    if (
+      event.target.id ===
+      "stationModal"
+    ) {
+
+      closeStationModal();
+
+    }
+
+  }
+
+
+
+  /* =========================================================
+     開門按鈕
+  ========================================================= */
+
+  function renderGateControls(
+    stationName
+  ) {
+
+    const station =
+      STATIONS[
+        stationName
+      ];
+
+
+    const container =
+      document.getElementById(
+        "gateControlContainer"
+      );
+
+
+    container.innerHTML =
+      "";
+
+
+    if (
+      station.feeOnly ||
+      !station.gates ||
+      station.gates.length === 0
+    ) {
+
+      container.innerHTML =
+        `
+        <div class="fee-only-info">
+          此停車場目前尚未設定遠端開門。<br>
+          目前僅提供停車費計算。
+        </div>
+        `;
+
+
+      return;
+
+    }
+
+
+    station.gates.forEach(
+      (
+        gate,
+        gateIndex
+      ) => {
+
+        const gateCard =
+          document.createElement(
+            "div"
+          );
+
+
+        gateCard.className =
+          "gate-card";
+
+
+        gateCard.innerHTML =
+          `
+          <div class="gate-card-title">
+            ${gate.label}
+          </div>
+
+          <div class="gate-button-group">
+
+            <button
+              class="gate-btn gate-btn-open"
+              onclick="runStationGate(
+                '${stationName}',
+                ${gateIndex},
+                'open',
+                this
+              )"
+            >
+              🟢 開門
+            </button>
+
+            <button
+              class="gate-btn gate-btn-close"
+              onclick="runStationGate(
+                '${stationName}',
+                ${gateIndex},
+                'close',
+                this
+              )"
+            >
+              🔴 關門
+            </button>
+
+          </div>
+
+          <div class="gate-status"></div>
+          `;
+
+
+        container.appendChild(
+          gateCard
+        );
+
+      }
+    );
+
+  }
+
+
+
+  /* =========================================================
+     執行遠端開門
+  ========================================================= */
+
+  async function runStationGate(
+    stationName,
+    gateIndex,
+    action,
+    btnEl
+  ) {
+
+    const station =
+      STATIONS[
+        stationName
+      ];
+
+
+    const gate =
+      station.gates[
+        gateIndex
+      ];
+
+
+    const gateCard =
+      btnEl.closest(
+        ".gate-card"
+      );
+
+
+    const buttons =
+      gateCard.querySelectorAll(
+        ".gate-btn"
+      );
+
+
+    const statusEl =
+      gateCard.querySelector(
+        ".gate-status"
+      );
+
+
+    buttons.forEach(
+      button =>
+        button.disabled =
+          true
+    );
+
+
+    statusEl.className =
+      "gate-status loading";
+
+
+    statusEl.textContent =
+      action === "open"
+        ? "⏳ 開門中..."
+        : "⏳ 關門中...";
+
+
+    try {
+
+      let url =
+        "";
+
+
+      if (
+        station.system ===
+        "paku"
+      ) {
+
+        url =
+          `${WORKER_URL}/api/paku/gate?action=${action}&dev_id=${gate.id}`;
+
       }
 
-      try {
-        const timestamp = new Date().getTime();
-        const response = await fetch(window.location.href + `?ts=${timestamp}`, {
-          method: 'GET',
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
+
+      else if (
+        station.system ===
+        "woparker"
+      ) {
+
+        url =
+          `${WORKER_URL}/api/woparker/${action}?id=${gate.id}`;
+
+      }
+
+
+      else if (
+        station.system ===
+        "fortune88"
+      ) {
+
+        url =
+          `${WORKER_URL}/api/fortune88/${action}/${gate.gate}`;
+
+      }
+
+
+      else {
+
+        throw new Error(
+          "此停車場沒有開門設定"
+        );
+
+      }
+
+
+      const response =
+        await fetch(
+          url,
+          {
+            method:
+              "GET"
           }
-        });
+        );
 
-        const html = await response.text();
-        const parser = new DOMParser();
-        const newDoc = parser.parseFromString(html, 'text/html');
 
-        const currentTitle = document.title;
-        const newTitle = newDoc.title;
+      let data =
+        {};
 
-        if (currentTitle !== newTitle) {
-          console.log(`📢 標題變更: "${currentTitle}" → "${newTitle}"`);
-          window.location.reload();
-          return true;
+
+      try {
+
+        data =
+          await response.json();
+
+      } catch (err) {
+
+        data =
+          {};
+
+      }
+
+
+      if (
+        !response.ok
+      ) {
+
+        throw new Error(
+          data.error ||
+          `HTTP ${response.status}`
+        );
+
+      }
+
+
+      statusEl.className =
+        "gate-status success";
+
+
+      statusEl.textContent =
+        action === "open"
+          ? "✅ 開門成功！"
+          : "✅ 關門成功！";
+
+
+    } catch (err) {
+
+      console.error(
+        `[${stationName}]`,
+        err
+      );
+
+
+      statusEl.className =
+        "gate-status error";
+
+
+      statusEl.textContent =
+        `❌ 失敗：${err.message.substring(0, 50)}`;
+
+
+    } finally {
+
+      setTimeout(
+        () => {
+
+          buttons.forEach(
+            button =>
+              button.disabled =
+                false
+          );
+
+        },
+        2000
+      );
+
+    }
+
+  }
+
+
+
+  /* =========================================================
+     從停車場跳到費用
+  ========================================================= */
+
+  function openFeeFromStation(
+    stationName
+  ) {
+
+    closeStationModal();
+
+
+    document.getElementById(
+      "parkingLot"
+    ).value =
+      stationName;
+
+
+    updateRateInfo();
+
+
+    document.getElementById(
+      "feeResult"
+    ).classList.remove(
+      "show"
+    );
+
+
+    document.getElementById(
+      "feeError"
+    ).style.display =
+      "none";
+
+
+    setEntryTime(
+      "00:00"
+    );
+
+
+    document.getElementById(
+      "feeCalculator"
+    ).scrollIntoView({
+
+      behavior:
+        "smooth",
+
+      block:
+        "start"
+
+    });
+
+  }
+
+
+
+  /* =========================================================
+     自製時間選擇器
+  ========================================================= */
+
+  let selectedHour =
+    0;
+
+
+  let selectedMinute =
+    0;
+
+
+
+  function buildTimePicker() {
+
+    const hourScroll =
+      document.getElementById(
+        "hourScroll"
+      );
+
+
+    const minuteScroll =
+      document.getElementById(
+        "minuteScroll"
+      );
+
+
+    hourScroll.innerHTML =
+      "";
+
+
+    minuteScroll.innerHTML =
+      "";
+
+
+    /* 小時 00 ~ 23 */
+
+    for (
+      let hour = 0;
+      hour <= 23;
+      hour++
+    ) {
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+
+      button.type =
+        "button";
+
+
+      button.className =
+        "time-option";
+
+
+      button.textContent =
+        String(
+          hour
+        ).padStart(
+          2,
+          "0"
+        );
+
+
+      button.dataset.value =
+        hour;
+
+
+      button.onclick =
+        () =>
+          selectHour(
+            hour
+          );
+
+
+      hourScroll.appendChild(
+        button
+      );
+
+    }
+
+
+    /* 分鐘 00 ~ 59 */
+
+    for (
+      let minute = 0;
+      minute <= 59;
+      minute++
+    ) {
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+
+      button.type =
+        "button";
+
+
+      button.className =
+        "time-option";
+
+
+      button.textContent =
+        String(
+          minute
+        ).padStart(
+          2,
+          "0"
+        );
+
+
+      button.dataset.value =
+        minute;
+
+
+      button.onclick =
+        () =>
+          selectMinute(
+            minute
+          );
+
+
+      minuteScroll.appendChild(
+        button
+      );
+
+    }
+
+  }
+
+
+
+  function setEntryTime(
+    value
+  ) {
+
+    document.getElementById(
+      "entryTime"
+    ).value =
+      value;
+
+
+    document.getElementById(
+      "entryTimeDisplay"
+    ).textContent =
+      value;
+
+  }
+
+
+
+  function openTimePicker() {
+
+    const currentValue =
+      document.getElementById(
+        "entryTime"
+      ).value ||
+      "00:00";
+
+
+    const parts =
+      currentValue.split(
+        ":"
+      );
+
+
+    selectedHour =
+      Number(
+        parts[0]
+      ) ||
+      0;
+
+
+    selectedMinute =
+      Number(
+        parts[1]
+      ) ||
+      0;
+
+
+    refreshTimePicker();
+
+
+    document.getElementById(
+      "customTimeModal"
+    ).classList.add(
+      "show"
+    );
+
+
+    document.body.classList.add(
+      "modal-open"
+    );
+
+
+    setTimeout(
+      () => {
+
+        scrollSelectedTime();
+
+      },
+      60
+    );
+
+  }
+
+
+
+  function closeTimePicker() {
+
+    document.getElementById(
+      "customTimeModal"
+    ).classList.remove(
+      "show"
+    );
+
+
+    /*
+      如果停車場彈窗還開著，
+      body 仍維持鎖定。
+    */
+
+    if (
+      !document.getElementById(
+        "stationModal"
+      ).classList.contains(
+        "show"
+      )
+    ) {
+
+      document.body.classList.remove(
+        "modal-open"
+      );
+
+    }
+
+  }
+
+
+
+  function selectHour(
+    hour
+  ) {
+
+    selectedHour =
+      hour;
+
+
+    refreshTimePicker();
+
+  }
+
+
+
+  function selectMinute(
+    minute
+  ) {
+
+    selectedMinute =
+      minute;
+
+
+    refreshTimePicker();
+
+  }
+
+
+
+  function refreshTimePicker() {
+
+    const hourText =
+      String(
+        selectedHour
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    const minuteText =
+      String(
+        selectedMinute
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    document.getElementById(
+      "timePreviewHour"
+    ).textContent =
+      hourText;
+
+
+    document.getElementById(
+      "timePreviewMinute"
+    ).textContent =
+      minuteText;
+
+
+    document
+      .querySelectorAll(
+        "#hourScroll .time-option"
+      )
+      .forEach(
+        button => {
+
+          button.classList.toggle(
+
+            "selected",
+
+            Number(
+              button.dataset.value
+            ) ===
+            selectedHour
+
+          );
+
+        }
+      );
+
+
+    document
+      .querySelectorAll(
+        "#minuteScroll .time-option"
+      )
+      .forEach(
+        button => {
+
+          button.classList.toggle(
+
+            "selected",
+
+            Number(
+              button.dataset.value
+            ) ===
+            selectedMinute
+
+          );
+
+        }
+      );
+
+  }
+
+
+
+  function scrollSelectedTime() {
+
+    const hourButton =
+      document.querySelector(
+        `#hourScroll .time-option[data-value="${selectedHour}"]`
+      );
+
+
+    const minuteButton =
+      document.querySelector(
+        `#minuteScroll .time-option[data-value="${selectedMinute}"]`
+      );
+
+
+    if (
+      hourButton
+    ) {
+
+      hourButton.scrollIntoView({
+
+        block:
+          "center"
+
+      });
+
+    }
+
+
+    if (
+      minuteButton
+    ) {
+
+      minuteButton.scrollIntoView({
+
+        block:
+          "center"
+
+      });
+
+    }
+
+  }
+
+
+
+  function confirmTimePicker() {
+
+    const hour =
+      String(
+        selectedHour
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    const minute =
+      String(
+        selectedMinute
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    const value =
+      `${hour}:${minute}`;
+
+
+    setEntryTime(
+      value
+    );
+
+
+    closeTimePicker();
+
+  }
+
+
+
+  function timePickerBackgroundClick(
+    event
+  ) {
+
+    if (
+      event.target.id ===
+      "customTimeModal"
+    ) {
+
+      closeTimePicker();
+
+    }
+
+  }
+
+
+
+  /* =========================================================
+     日期工具
+  ========================================================= */
+
+  function formatDateInput(
+    date
+  ) {
+
+    const year =
+      date.getFullYear();
+
+
+    const month =
+      String(
+        date.getMonth() + 1
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    const day =
+      String(
+        date.getDate()
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    return (
+      `${year}-${month}-${day}`
+    );
+
+  }
+
+
+
+  function setTodayDefault() {
+
+    const today =
+      new Date();
+
+
+    document.getElementById(
+      "entryDate"
+    ).value =
+      formatDateInput(
+        today
+      );
+
+
+    setEntryTime(
+      "00:00"
+    );
+
+  }
+
+
+
+  function isWeekend(
+    date
+  ) {
+
+    const day =
+      date.getDay();
+
+
+    return (
+      day === 0 ||
+      day === 6
+    );
+
+  }
+
+
+
+  function sameCalendarDay(
+    a,
+    b
+  ) {
+
+    return (
+
+      a.getFullYear() ===
+        b.getFullYear()
+
+      &&
+
+      a.getMonth() ===
+        b.getMonth()
+
+      &&
+
+      a.getDate() ===
+        b.getDate()
+
+    );
+
+  }
+
+
+
+  function getNextMidnight(
+    date
+  ) {
+
+    return new Date(
+
+      date.getFullYear(),
+
+      date.getMonth(),
+
+      date.getDate() + 1,
+
+      0,
+
+      0,
+
+      0,
+
+      0
+
+    );
+
+  }
+
+
+
+  /* =========================================================
+     平日 / 假日
+  ========================================================= */
+
+  function getDayType(
+    date,
+    forceHoliday
+  ) {
+
+    if (
+      forceHoliday
+    ) {
+
+      return "holiday";
+
+    }
+
+
+    if (
+      isWeekend(
+        date
+      )
+    ) {
+
+      return "holiday";
+
+    }
+
+
+    return "weekday";
+
+  }
+
+
+
+  function getRate(
+    rule,
+    date,
+    forceHoliday
+  ) {
+
+    const dayType =
+      getDayType(
+        date,
+        forceHoliday
+      );
+
+
+    if (
+      dayType ===
+      "holiday"
+    ) {
+
+      return {
+
+        rate:
+          rule.holidayRate,
+
+        max:
+          rule.holidayMax,
+
+        type:
+          "假日"
+
+      };
+
+    }
+
+
+    return {
+
+      rate:
+        rule.weekdayRate,
+
+      max:
+        rule.weekdayMax,
+
+      type:
+        "平日"
+
+    };
+
+  }
+
+
+
+  /* =========================================================
+     顯示費率
+  ========================================================= */
+
+  function updateRateInfo() {
+
+    const station =
+      document.getElementById(
+        "parkingLot"
+      ).value;
+
+
+    const rule =
+      PARKING_RATES[
+        station
+      ];
+
+
+    const forceHoliday =
+      document.getElementById(
+        "forceHoliday"
+      ).checked;
+
+
+    if (
+      !rule
+    ) {
+
+      return;
+
+    }
+
+
+    let html =
+      "";
+
+
+    if (
+      rule.weekdayRate ===
+      rule.holidayRate
+    ) {
+
+      html +=
+        `每半小時 <strong>${rule.weekdayRate} 元</strong>`;
+
+    }
+
+    else {
+
+      html +=
+        `平日每半小時 <strong>${rule.weekdayRate} 元</strong><br>`;
+
+
+      html +=
+        `假日每半小時 <strong>${rule.holidayRate} 元</strong>`;
+
+    }
+
+
+    if (
+      rule.firstHourMinimum
+    ) {
+
+      html +=
+        `<br>第一小時未滿 1 小時，以 1 小時計`;
+
+    }
+
+
+    if (
+      rule.weekdayMax ===
+        rule.holidayMax
+
+      &&
+
+      rule.weekdayMax !==
+        null
+    ) {
+
+      html +=
+        `<br>每日最高 <strong>${rule.weekdayMax} 元</strong>`;
+
+    }
+
+    else {
+
+      html +=
+        "<br>";
+
+
+      if (
+        rule.weekdayMax !==
+        null
+      ) {
+
+        html +=
+          `平日最高 <strong>${rule.weekdayMax} 元</strong>`;
+
+      }
+
+      else {
+
+        html +=
+          "平日無上限";
+
+      }
+
+
+      html +=
+        " / ";
+
+
+      if (
+        rule.holidayMax !==
+        null
+      ) {
+
+        html +=
+          `假日最高 <strong>${rule.holidayMax} 元</strong>`;
+
+      }
+
+      else {
+
+        html +=
+          "假日無上限";
+
+      }
+
+    }
+
+
+    if (
+      forceHoliday
+    ) {
+
+      html +=
+        `<br><strong style="color:#d84315;">目前強制以假日費率計算</strong>`;
+
+    }
+
+
+    document.getElementById(
+      "rateInfo"
+    ).innerHTML =
+      html;
+
+  }
+
+
+
+  /* =========================================================
+     單日停車費
+  ========================================================= */
+
+  function calculateDayFee(
+    minutes,
+    rule,
+    date,
+    forceHoliday,
+    applyFirstHourMinimum
+  ) {
+
+    if (
+      minutes <= 0
+    ) {
+
+      return 0;
+
+    }
+
+
+    const rateInfo =
+      getRate(
+        rule,
+        date,
+        forceHoliday
+      );
+
+
+    let units =
+      Math.ceil(
+        minutes / 30
+      );
+
+
+    /*
+      第一小時未滿一小時
+      直接收滿一小時
+    */
+
+    if (
+      applyFirstHourMinimum
+
+      &&
+
+      rule.firstHourMinimum
+
+      &&
+
+      minutes < 60
+    ) {
+
+      units =
+        Math.max(
+          units,
+          2
+        );
+
+    }
+
+
+    let fee =
+      units *
+      rateInfo.rate;
+
+
+    if (
+      rateInfo.max !==
+        null
+
+      &&
+
+      fee >
+        rateInfo.max
+    ) {
+
+      fee =
+        rateInfo.max;
+
+    }
+
+
+    return fee;
+
+  }
+
+
+
+  /* =========================================================
+     整段停車費
+  ========================================================= */
+
+  function calculateParkingFee(
+    entry,
+    exit,
+    rule,
+    forceHoliday
+  ) {
+
+    const totalMinutes =
+      (
+        exit.getTime() -
+        entry.getTime()
+      ) / 60000;
+
+
+    if (
+      totalMinutes <= 0
+    ) {
+
+      return {
+
+        fee:
+          0,
+
+        totalMinutes:
+          0
+
+      };
+
+    }
+
+
+    /*
+      同一天
+    */
+
+    if (
+      sameCalendarDay(
+        entry,
+        exit
+      )
+    ) {
+
+      const fee =
+        calculateDayFee(
+
+          totalMinutes,
+
+          rule,
+
+          entry,
+
+          forceHoliday,
+
+          true
+
+        );
+
+
+      return {
+
+        fee,
+
+        totalMinutes
+
+      };
+
+    }
+
+
+    /*
+      跨日但總時間未滿一小時
+    */
+
+    if (
+      rule.firstHourMinimum
+
+      &&
+
+      totalMinutes < 60
+    ) {
+
+      const rateInfo =
+        getRate(
+          rule,
+          entry,
+          forceHoliday
+        );
+
+
+      let fee =
+        rateInfo.rate *
+        2;
+
+
+      if (
+        rateInfo.max !==
+          null
+
+        &&
+
+        fee >
+          rateInfo.max
+      ) {
+
+        fee =
+          rateInfo.max;
+
+      }
+
+
+      return {
+
+        fee,
+
+        totalMinutes
+
+      };
+
+    }
+
+
+    /*
+      跨日
+    */
+
+    let totalFee =
+      0;
+
+
+    let currentStart =
+      new Date(
+        entry
+      );
+
+
+    while (
+      currentStart <
+      exit
+    ) {
+
+      const nextMidnight =
+        getNextMidnight(
+          currentStart
+        );
+
+
+      const segmentEnd =
+        nextMidnight <
+        exit
+
+          ? nextMidnight
+
+          : exit;
+
+
+      const segmentMinutes =
+        (
+          segmentEnd.getTime() -
+          currentStart.getTime()
+        ) / 60000;
+
+
+      const dayFee =
+        calculateDayFee(
+
+          segmentMinutes,
+
+          rule,
+
+          currentStart,
+
+          forceHoliday,
+
+          false
+
+        );
+
+
+      totalFee +=
+        dayFee;
+
+
+      currentStart =
+        segmentEnd;
+
+    }
+
+
+    return {
+
+      fee:
+        totalFee,
+
+      totalMinutes
+
+    };
+
+  }
+
+
+
+  /* =========================================================
+     停車時間顯示
+  ========================================================= */
+
+  function formatDuration(
+    minutes
+  ) {
+
+    if (
+      minutes < 1
+    ) {
+
+      return (
+        "未滿 1 分鐘"
+      );
+
+    }
+
+
+    const roundedMinutes =
+      Math.ceil(
+        minutes
+      );
+
+
+    const days =
+      Math.floor(
+        roundedMinutes /
+        1440
+      );
+
+
+    const remaining =
+      roundedMinutes %
+      1440;
+
+
+    const hours =
+      Math.floor(
+        remaining /
+        60
+      );
+
+
+    const mins =
+      remaining %
+      60;
+
+
+    const parts =
+      [];
+
+
+    if (
+      days > 0
+    ) {
+
+      parts.push(
+        `${days} 天`
+      );
+
+    }
+
+
+    if (
+      hours > 0
+    ) {
+
+      parts.push(
+        `${hours} 小時`
+      );
+
+    }
+
+
+    if (
+      mins > 0
+    ) {
+
+      parts.push(
+        `${mins} 分鐘`
+      );
+
+    }
+
+
+    return (
+      parts.length >
+      0
+
+        ? parts.join(
+            " "
+          )
+
+        : "未滿 1 分鐘"
+    );
+
+  }
+
+
+
+  /* =========================================================
+     計算目前停車費
+  ========================================================= */
+
+  function calculateCurrentFee() {
+
+    const station =
+      document.getElementById(
+        "parkingLot"
+      ).value;
+
+
+    const dateValue =
+      document.getElementById(
+        "entryDate"
+      ).value;
+
+
+    const timeValue =
+      document.getElementById(
+        "entryTime"
+      ).value;
+
+
+    const forceHoliday =
+      document.getElementById(
+        "forceHoliday"
+      ).checked;
+
+
+    const errorEl =
+      document.getElementById(
+        "feeError"
+      );
+
+
+    const resultEl =
+      document.getElementById(
+        "feeResult"
+      );
+
+
+    errorEl.style.display =
+      "none";
+
+
+    document.getElementById(
+      "copyStatus"
+    ).style.display =
+      "none";
+
+
+    if (
+      !dateValue
+    ) {
+
+      showFeeError(
+        "請選擇進場日期"
+      );
+
+
+      return;
+
+    }
+
+
+    if (
+      !timeValue
+    ) {
+
+      showFeeError(
+        "請輸入客人的進場時間"
+      );
+
+
+      return;
+
+    }
+
+
+    const entry =
+      new Date(
+        `${dateValue}T${timeValue}:00`
+      );
+
+
+    const now =
+      new Date();
+
+
+    if (
+      Number.isNaN(
+        entry.getTime()
+      )
+    ) {
+
+      showFeeError(
+        "進場時間格式錯誤"
+      );
+
+
+      return;
+
+    }
+
+
+    if (
+      entry >=
+      now
+    ) {
+
+      showFeeError(
+        "進場時間不能晚於目前時間"
+      );
+
+
+      return;
+
+    }
+
+
+    const rule =
+      PARKING_RATES[
+        station
+      ];
+
+
+    if (
+      !rule
+    ) {
+
+      showFeeError(
+        "找不到這個停車場的費率"
+      );
+
+
+      return;
+
+    }
+
+
+    const calculation =
+      calculateParkingFee(
+
+        entry,
+
+        now,
+
+        rule,
+
+        forceHoliday
+
+      );
+
+
+    const durationText =
+      formatDuration(
+        calculation.totalMinutes
+      );
+
+
+    document.getElementById(
+      "resultStation"
+    ).textContent =
+      `📍 ${station}`;
+
+
+    document.getElementById(
+      "durationResult"
+    ).textContent =
+      `您的停車時間為：${durationText}`;
+
+
+    document.getElementById(
+      "amountResult"
+    ).textContent =
+      `收款：${calculation.fee} 元`;
+
+
+    document.getElementById(
+      "calculationTime"
+    ).textContent =
+      `計算至目前時間：${formatCurrentTime(now)}`;
+
+
+    resultEl.classList.add(
+      "show"
+    );
+
+
+    lastCalculation = {
+
+      station,
+
+      durationText,
+
+      fee:
+        calculation.fee,
+
+      entry,
+
+      calculatedAt:
+        now
+
+    };
+
+  }
+
+
+
+  function showFeeError(
+    message
+  ) {
+
+    const errorEl =
+      document.getElementById(
+        "feeError"
+      );
+
+
+    errorEl.textContent =
+      `⚠️ ${message}`;
+
+
+    errorEl.style.display =
+      "block";
+
+
+    document.getElementById(
+      "feeResult"
+    ).classList.remove(
+      "show"
+    );
+
+  }
+
+
+
+  function formatCurrentTime(
+    date
+  ) {
+
+    const year =
+      date.getFullYear();
+
+
+    const month =
+      String(
+        date.getMonth() + 1
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    const day =
+      String(
+        date.getDate()
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    const hour =
+      String(
+        date.getHours()
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    const minute =
+      String(
+        date.getMinutes()
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    return (
+      `${year}/${month}/${day} ${hour}:${minute}`
+    );
+
+  }
+
+
+
+  /* =========================================================
+     複製收款資訊
+  ========================================================= */
+
+  async function copyPaymentMessage() {
+
+    if (
+      !lastCalculation
+    ) {
+
+      showFeeError(
+        "請先計算停車費"
+      );
+
+
+      return;
+
+    }
+
+
+    const text =
+`您的停車時間為：${lastCalculation.durationText}
+收款：${lastCalculation.fee} 元
+
+車P 收款帳號
+中國信託東台南分行 822
+帳 號: 1155-4021-1024
+
+轉帳完成，車子開到出口，再通知開門`;
+
+
+    try {
+
+      if (
+        navigator.clipboard &&
+        window.isSecureContext
+      ) {
+
+        await navigator.clipboard.writeText(
+          text
+        );
+
+      }
+
+      else {
+
+        fallbackCopyText(
+          text
+        );
+
+      }
+
+
+      showCopySuccess();
+
+    }
+
+    catch (err) {
+
+      try {
+
+        fallbackCopyText(
+          text
+        );
+
+
+        showCopySuccess();
+
+      }
+
+      catch (fallbackError) {
+
+        alert(
+          "複製失敗，請手動複製文字"
+        );
+
+      }
+
+    }
+
+  }
+
+
+
+  function fallbackCopyText(
+    text
+  ) {
+
+    const textarea =
+      document.createElement(
+        "textarea"
+      );
+
+
+    textarea.value =
+      text;
+
+
+    textarea.style.position =
+      "fixed";
+
+
+    textarea.style.left =
+      "-9999px";
+
+
+    textarea.style.top =
+      "-9999px";
+
+
+    document.body.appendChild(
+      textarea
+    );
+
+
+    textarea.focus();
+
+
+    textarea.select();
+
+
+    document.execCommand(
+      "copy"
+    );
+
+
+    textarea.remove();
+
+  }
+
+
+
+  function showCopySuccess() {
+
+    const el =
+      document.getElementById(
+        "copyStatus"
+      );
+
+
+    el.style.display =
+      "block";
+
+
+    setTimeout(
+      () => {
+
+        el.style.display =
+          "none";
+
+      },
+      3000
+    );
+
+  }
+
+
+
+  /* =========================================================
+     版本更新
+  ========================================================= */
+
+  async function checkVersionUpdate() {
+
+    if (
+      isLocalFile
+    ) {
+
+      return false;
+
+    }
+
+
+    try {
+
+      const timestamp =
+        Date.now();
+
+
+      const response =
+        await fetch(
+
+          window.location.href +
+          `?ts=${timestamp}`,
+
+          {
+
+            method:
+              "GET",
+
+            cache:
+              "no-store",
+
+            headers: {
+
+              "Cache-Control":
+                "no-cache, no-store, must-revalidate",
+
+              "Pragma":
+                "no-cache"
+
+            }
+
+          }
+
+        );
+
+
+      const html =
+        await response.text();
+
+
+      const parser =
+        new DOMParser();
+
+
+      const newDoc =
+        parser.parseFromString(
+          html,
+          "text/html"
+        );
+
+
+      if (
+        document.title !==
+        newDoc.title
+      ) {
+
+        window.location.reload();
+
+
+        return true;
+
+      }
+
+
+      return false;
+
+    }
+
+    catch (err) {
+
+      console.warn(
+        "版本檢查失敗：",
+        err.message
+      );
+
+
+      return false;
+
+    }
+
+  }
+
+
+
+  /* =========================================================
+     ESC
+  ========================================================= */
+
+  document.addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key ===
+        "Escape"
+      ) {
+
+        if (
+          document.getElementById(
+            "customTimeModal"
+          ).classList.contains(
+            "show"
+          )
+        ) {
+
+          closeTimePicker();
+
         }
 
-        return false;
-      } catch (err) {
-        console.warn('⚠️ 版本檢查失敗 (網路問題):', err.message);
-        return false;
+        else {
+
+          closeStationModal();
+
+        }
+
       }
+
     }
+  );
 
-    // 每 30 秒檢查一次版本（僅限網路環境）
-    if (!isLocalFile) {
-      setInterval(() => checkVersionUpdate(), 30000);
+
+
+  /* =========================================================
+     頁面載入
+  ========================================================= */
+
+  window.addEventListener(
+    "load",
+    () => {
+
+      setTodayDefault();
+
+
+      buildTimePicker();
+
+
+      updateRateInfo();
+
+
+      renderRecentStations();
+
+
+      renderStationList();
+
+
+      if (
+        !isLocalFile
+      ) {
+
+        setTimeout(
+          checkVersionUpdate,
+          1000
+        );
+
+      }
+
     }
+  );
 
-    // 頁面載入時立即檢查
-    window.addEventListener('load', () => {
-      setTimeout(() => checkVersionUpdate(), 1000);
-    });
 
-    // 頁面重新獲得焦點時也檢查
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && !isLocalFile) {
-        console.log('👀 應用重新獲得焦點，檢查更新...');
+
+  if (
+    !isLocalFile
+  ) {
+
+    setInterval(
+      checkVersionUpdate,
+      30000
+    );
+
+  }
+
+
+
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+
+      if (
+        !document.hidden &&
+        !isLocalFile
+      ) {
+
         checkVersionUpdate();
+
       }
-    });
 
-    // ===== 動態產生 apple-touch-icon =====
-    const canvas = document.createElement('canvas');
-    canvas.width = 180;
-    canvas.height = 180;
-    const ctx = canvas.getContext('2d');
+    }
+  );
 
-    ctx.fillStyle = '#0066cc';
-    ctx.beginPath();
-    ctx.roundRect(0, 0, 180, 180, 30);
-    ctx.fill();
 
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 120px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('P', 90, 95);
 
-    const link = document.createElement('link');
-    link.rel = 'apple-touch-icon';
-    link.href = canvas.toDataURL('image/png');
-    document.head.appendChild(link);
-  </script>
+  /* =========================================================
+     Apple Touch Icon
+  ========================================================= */
+
+  const canvas =
+    document.createElement(
+      "canvas"
+    );
+
+
+  canvas.width =
+    180;
+
+
+  canvas.height =
+    180;
+
+
+  const ctx =
+    canvas.getContext(
+      "2d"
+    );
+
+
+  ctx.fillStyle =
+    "#0066cc";
+
+
+  ctx.beginPath();
+
+
+  ctx.roundRect(
+    0,
+    0,
+    180,
+    180,
+    30
+  );
+
+
+  ctx.fill();
+
+
+  ctx.fillStyle =
+    "white";
+
+
+  ctx.font =
+    "bold 120px Arial";
+
+
+  ctx.textAlign =
+    "center";
+
+
+  ctx.textBaseline =
+    "middle";
+
+
+  ctx.fillText(
+    "P",
+    90,
+    95
+  );
+
+
+  const link =
+    document.createElement(
+      "link"
+    );
+
+
+  link.rel =
+    "apple-touch-icon";
+
+
+  link.href =
+    canvas.toDataURL(
+      "image/png"
+    );
+
+
+  document.head.appendChild(
+    link
+  );
+
+
+</script>
+
 
 </body>
 </html>
