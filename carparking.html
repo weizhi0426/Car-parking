@@ -107,8 +107,11 @@
     }
 
     .fee-form-group {
-      margin-bottom: 14px;
-    }
+        width: 100%;
+        min-width: 0;
+        margin-bottom: 14px;
+        overflow: hidden;
+        }
 
     .fee-form-group label {
       display: block;
@@ -122,22 +125,39 @@
 
     .fee-input,
     .fee-select {
-      width: 100%;
-      min-height: 52px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 52px;
 
-      border: 1px solid #d2d6dc;
-      border-radius: 11px;
+    display: block;
 
-      padding: 0 12px;
+    border: 1px solid #d2d6dc;
+    border-radius: 11px;
 
-      font-size: 1rem;
+    padding: 0 12px;
 
-      background: white;
-      color: #333;
+    font-size: 1rem;
 
-      outline: none;
+    background: white;
+    color: #333;
+
+    outline: none;
+
+    box-sizing: border-box;
     }
 
+    /* 手機日期欄位避免超出卡片 */
+    input[type="date"].fee-input {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    display: block;
+
+    -webkit-appearance: none;
+    appearance: none;
+    }
     .fee-input:focus,
     .fee-select:focus {
       border-color: #1976d2;
