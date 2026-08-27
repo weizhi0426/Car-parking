@@ -3125,197 +3125,232 @@ function handleEntryTimeFocus(input) {
     0830  → 08:30
     1350  → 13:50
     */
-    function handleEntryTimeInput(input) {
+   function handleEntryTimeInput(input) {
 
-    let digits =
-        input.value
-        .replace(/\D/g, "")
-        .slice(0, 4);
-
-
-    /*
-        輸入滿 3 碼：
-        830 → 08:30
-    */
-    if (digits.length === 3) {
-
-        digits =
-        "0" + digits;
-
-    }
+  let digits =
+    input.value
+      .replace(/\D/g, "")
+      .slice(0, 4);
 
 
-    /*
-        輸入滿 4 碼：
-        0830 → 08:30
-    */
-    if (digits.length === 4) {
+  /*
+    未滿 4 碼時，不做任何格式化
 
-        const hour =
-        digits.slice(0, 2);
-
-        const minute =
-        digits.slice(2, 4);
-
-
-        input.value =
-        `${hour}:${minute}`;
-
-        return;
-
-    }
-
+    例如：
+    1   → 1
+    16  → 16
+    163 → 163
+  */
+  if (digits.length < 4) {
 
     input.value =
-        digits;
+      digits;
 
-    }
+    return;
 
+  }
+
+
+  /*
+    只有輸入滿 4 碼才轉成 HH:MM
+
+    例如：
+    1630 → 16:30
+    0830 → 08:30
+  */
+  const hour =
+    Number(
+      digits.slice(0, 2)
+    );
+
+
+  const minute =
+    Number(
+      digits.slice(2, 4)
+    );
+
+
+  if (
+    hour > 23 ||
+    minute > 59
+  ) {
+
+    input.value =
+      digits;
+
+    return;
+
+  }
+
+
+  input.value =
+    `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+
+}
 
     /*
     離開欄位時整理格式
     */
     function normalizeEntryTime(input) {
 
-    let value =
-        input.value.trim();
+  let value =
+    input.value.trim();
 
 
-    if (!value) {
+  if (!value) {
 
-        return;
+    return;
 
-    }
-
-
-    /*
-        已經是 HH:MM
-    */
-    if (/^\d{1,2}:\d{1,2}$/.test(value)) {
-
-        let [
-        hour,
-        minute
-        ] = value
-        .split(":")
-        .map(Number);
+  }
 
 
-        if (
-        hour >= 0 &&
-        hour <= 23 &&
-        minute >= 0 &&
-        minute <= 59
-        ) {
+  /*
+    已經是正確 HH:MM
+  */
+  if (/^\d{2}:\d{2}$/.test(value)) {
 
-        input.value =
-            `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
-
-        return;
-
-        }
-
-    }
+    const [
+      hourText,
+      minuteText
+    ] =
+      value.split(":");
 
 
-    /*
-        純數字
-    */
-    let digits =
-        value.replace(/\D/g, "");
+    const hour =
+      Number(hourText);
 
 
-    /*
-        8 → 08:00
-    */
-    if (digits.length === 1) {
-
-        const hour =
-        Number(digits);
+    const minute =
+      Number(minuteText);
 
 
-        if (hour <= 9) {
+    if (
+      hour >= 0 &&
+      hour <= 23 &&
+      minute >= 0 &&
+      minute <= 59
+    ) {
 
-        input.value =
-            `0${hour}:00`;
-
-        return;
-
-        }
+      return;
 
     }
 
-
-    /*
-        13 → 13:00
-    */
-    if (digits.length === 2) {
-
-        const hour =
-        Number(digits);
+  }
 
 
-        if (hour <= 23) {
-
-        input.value =
-            `${String(hour).padStart(2, "0")}:00`;
-
-        return;
-
-        }
-
-    }
+  let digits =
+    value
+      .replace(/\D/g, "")
+      .slice(0, 4);
 
 
-    /*
-        830 → 08:30
-    */
-    if (digits.length === 3) {
+  /*
+    1 碼：
+    8 → 08:00
+  */
+  if (digits.length === 1) {
 
-        digits =
-        "0" + digits;
-
-    }
-
-
-    /*
-        0830 → 08:30
-    */
-    if (digits.length === 4) {
-
-        const hour =
-        Number(
-            digits.slice(0, 2)
-        );
-
-        const minute =
-        Number(
-            digits.slice(2, 4)
-        );
+    const hour =
+      Number(digits);
 
 
-        if (
-        hour <= 23 &&
-        minute <= 59
-        ) {
+    if (
+      hour >= 0 &&
+      hour <= 9
+    ) {
 
-        input.value =
-            `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+      input.value =
+        `0${hour}:00`;
 
-        return;
-
-        }
+      return;
 
     }
 
+  }
 
-    /*
-        無效時間直接清空
-    */
-    input.value = "";
+
+  /*
+    2 碼：
+    16 → 16:00
+  */
+  if (digits.length === 2) {
+
+    const hour =
+      Number(digits);
+
+
+    if (
+      hour >= 0 &&
+      hour <= 23
+    ) {
+
+      input.value =
+        `${String(hour).padStart(2, "0")}:00`;
+
+      return;
 
     }
 
+  }
+
+
+  /*
+    3 碼：
+    不自動亂猜
+    例如 163 不知道你是 01:63 還是 16:30 還沒打完
+    所以直接保留
+  */
+  if (digits.length === 3) {
+
+    input.value =
+      digits;
+
+    return;
+
+  }
+
+
+  /*
+    4 碼：
+    1630 → 16:30
+  */
+  if (digits.length === 4) {
+
+    const hour =
+      Number(
+        digits.slice(0, 2)
+      );
+
+
+    const minute =
+      Number(
+        digits.slice(2, 4)
+      );
+
+
+    if (
+      hour >= 0 &&
+      hour <= 23 &&
+      minute >= 0 &&
+      minute <= 59
+    ) {
+
+      input.value =
+        `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+
+      return;
+
+    }
+
+  }
+
+
+  /*
+    不合法才清空
+  */
+  input.value = "";
+
+}
 
 
   function openTimePicker() {
