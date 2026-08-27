@@ -1198,28 +1198,27 @@
 
     <!-- 自製時間選擇 -->
 
+        <!-- 進場時間：手機鍵盤直接輸入 -->
+
     <div class="fee-form-group">
 
-      <label>
+    <label for="entryTime">
         🕐 進場時間
-      </label>
+    </label>
 
-      <button
-        type="button"
-        id="entryTimeButton"
-        class="fee-input time-picker-button"
-        onclick="openTimePicker()"
-      >
-        <span id="entryTimeDisplay">
-          00:00
-        </span>
-      </button>
-
-      <input
-        type="hidden"
+    <input
+        type="text"
         id="entryTime"
+        class="fee-input"
         value="00:00"
-      >
+        placeholder="例如 0830"
+        inputmode="numeric"
+        maxlength="5"
+        autocomplete="off"
+        oninput="handleEntryTimeInput(this)"
+        onfocus="handleEntryTimeFocus(this)"
+        onblur="normalizeEntryTime(this)"
+    >
 
     </div>
 
@@ -2972,22 +2971,233 @@ function openExternalParkingSite(url) {
 
 
 
-  function setEntryTime(
-    value
-  ) {
+  function setEntryTime(value) {
 
-    document.getElementById(
-      "entryTime"
-    ).value =
-      value;
+  document.getElementById(
+    "entryTime"
+  ).value = value;
+
+}
 
 
-    document.getElementById(
-      "entryTimeDisplay"
-    ).textContent =
-      value;
+/*
+  點進時間欄位時：
+  如果目前是預設 00:00，直接全選，
+  方便手機直接輸入新的時間。
+*/
+function handleEntryTimeFocus(input) {
+
+  if (input.value === "00:00") {
+
+    setTimeout(() => {
+      input.select();
+    }, 50);
 
   }
+
+}
+
+
+    /*
+    手機只需要輸入數字。
+
+    例如：
+    8     → 8
+    83    → 83
+    830   → 08:30
+    0830  → 08:30
+    1350  → 13:50
+    */
+    function handleEntryTimeInput(input) {
+
+    let digits =
+        input.value
+        .replace(/\D/g, "")
+        .slice(0, 4);
+
+
+    /*
+        輸入滿 3 碼：
+        830 → 08:30
+    */
+    if (digits.length === 3) {
+
+        digits =
+        "0" + digits;
+
+    }
+
+
+    /*
+        輸入滿 4 碼：
+        0830 → 08:30
+    */
+    if (digits.length === 4) {
+
+        const hour =
+        digits.slice(0, 2);
+
+        const minute =
+        digits.slice(2, 4);
+
+
+        input.value =
+        `${hour}:${minute}`;
+
+        return;
+
+    }
+
+
+    input.value =
+        digits;
+
+    }
+
+
+    /*
+    離開欄位時整理格式
+    */
+    function normalizeEntryTime(input) {
+
+    let value =
+        input.value.trim();
+
+
+    if (!value) {
+
+        return;
+
+    }
+
+
+    /*
+        已經是 HH:MM
+    */
+    if (/^\d{1,2}:\d{1,2}$/.test(value)) {
+
+        let [
+        hour,
+        minute
+        ] = value
+        .split(":")
+        .map(Number);
+
+
+        if (
+        hour >= 0 &&
+        hour <= 23 &&
+        minute >= 0 &&
+        minute <= 59
+        ) {
+
+        input.value =
+            `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+
+        return;
+
+        }
+
+    }
+
+
+    /*
+        純數字
+    */
+    let digits =
+        value.replace(/\D/g, "");
+
+
+    /*
+        8 → 08:00
+    */
+    if (digits.length === 1) {
+
+        const hour =
+        Number(digits);
+
+
+        if (hour <= 9) {
+
+        input.value =
+            `0${hour}:00`;
+
+        return;
+
+        }
+
+    }
+
+
+    /*
+        13 → 13:00
+    */
+    if (digits.length === 2) {
+
+        const hour =
+        Number(digits);
+
+
+        if (hour <= 23) {
+
+        input.value =
+            `${String(hour).padStart(2, "0")}:00`;
+
+        return;
+
+        }
+
+    }
+
+
+    /*
+        830 → 08:30
+    */
+    if (digits.length === 3) {
+
+        digits =
+        "0" + digits;
+
+    }
+
+
+    /*
+        0830 → 08:30
+    */
+    if (digits.length === 4) {
+
+        const hour =
+        Number(
+            digits.slice(0, 2)
+        );
+
+        const minute =
+        Number(
+            digits.slice(2, 4)
+        );
+
+
+        if (
+        hour <= 23 &&
+        minute <= 59
+        ) {
+
+        input.value =
+            `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+
+        return;
+
+        }
+
+    }
+
+
+    /*
+        無效時間直接清空
+    */
+    input.value = "";
+
+    }
 
 
 
@@ -4122,7 +4332,49 @@ function openExternalParkingSite(url) {
       return;
 
     }
+    const timeMatch =
+  timeValue.match(
+    /^(\d{2}):(\d{2})$/
+  );
 
+
+if (!timeMatch) {
+
+  showFeeError(
+    "進場時間格式錯誤，例如請輸入 0830"
+  );
+
+  return;
+
+}
+
+
+        const entryHour =
+        Number(
+            timeMatch[1]
+        );
+
+
+        const entryMinute =
+        Number(
+            timeMatch[2]
+        );
+
+
+        if (
+        entryHour < 0 ||
+        entryHour > 23 ||
+        entryMinute < 0 ||
+        entryMinute > 59
+        ) {
+
+        showFeeError(
+            "請輸入正確的進場時間"
+        );
+
+        return;
+
+        }
 
     const entry =
       new Date(
