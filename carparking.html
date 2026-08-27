@@ -147,16 +147,133 @@
     box-sizing: border-box;
     }
 
-    /* 手機日期欄位避免超出卡片 */
+    /* =========================================================
+    手機日期欄位
+    ========================================================= */
+
     input[type="date"].fee-input {
     width: 100%;
     max-width: 100%;
     min-width: 0;
 
+    height: 52px;
+    min-height: 52px;
+
     display: block;
 
-    -webkit-appearance: none;
-    appearance: none;
+    padding:
+        0 12px;
+
+    border:
+        1px solid #d2d6dc;
+
+    border-radius:
+        11px;
+
+    background:
+        white;
+
+    color:
+        #333;
+
+    font-size:
+        1rem;
+
+    font-weight:
+        600;
+
+    line-height:
+        52px;
+
+    text-align:
+        left;
+
+    box-sizing:
+        border-box;
+
+    -webkit-appearance:
+        none;
+
+    appearance:
+        none;
+    }
+
+
+    /*
+    iPhone / Safari
+    日期文字靠左、垂直置中
+    */
+    input[type="date"].fee-input::-webkit-date-and-time-value {
+    text-align: left;
+
+    min-height:
+        52px;
+
+    line-height:
+        52px;
+
+    padding:
+        0;
+
+    margin:
+        0;
+    }
+
+
+    /*
+    日期內容區域
+    */
+    input[type="date"].fee-input::-webkit-datetime-edit {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    height:
+        52px;
+
+    padding:
+        0;
+
+    margin:
+        0;
+    }
+
+
+    /*
+    年 / 月 / 日
+    */
+    input[type="date"].fee-input::-webkit-datetime-edit-fields-wrapper {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    height:
+        100%;
+    }
+
+
+    /*
+    日期小圖示
+    */
+    input[type="date"].fee-input::-webkit-calendar-picker-indicator {
+    width:
+        22px;
+
+    height:
+        22px;
+
+    margin-left:
+        auto;
+
+    cursor:
+        pointer;
+
+    opacity:
+        0.75;
     }
     .fee-input:focus,
     .fee-select:focus {
